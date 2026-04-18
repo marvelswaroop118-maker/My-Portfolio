@@ -22,3 +22,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ✅ Prevent horizontal scroll bugs */
+html,
+body {
+  overflow-x: hidden;
+}
+
+/* ✅ Better mobile scrolling */
+* {
+  -webkit-overflow-scrolling: touch;
+}

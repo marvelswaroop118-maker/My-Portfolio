@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ScrollStack, { ScrollStackItem } from "./ScrollStack";
+import "./ScrollStack.css";
 
 /* -------------------- DATA -------------------- */
 
@@ -14,16 +16,8 @@ const FLIP_CARDS = [
         frontStatLabel: "CGPA",
         backTitle: "Education",
         backItems: [
-            {
-                title: "BBA LL.B (Hons.)",
-                sub: "VIT-AP University",
-                note: "2021–2026",
-            },
-            {
-                title: "Diploma in Tech Law",
-                sub: "LawSikho",
-                note: "A Grade",
-            },
+            { title: "BBA LL.B (Hons.)", sub: "VIT-AP University", note: "2021–2026" },
+            { title: "Diploma in Tech Law", sub: "LawSikho", note: "A Grade" },
         ],
     },
     {
@@ -34,16 +28,8 @@ const FLIP_CARDS = [
         frontStatLabel: "Internships",
         backTitle: "Key Work",
         backItems: [
-            {
-                title: "MLS & Co",
-                sub: "High Court Work",
-                note: "Litigation",
-            },
-            {
-                title: "Fox & Mandal",
-                sub: "Corporate Work",
-                note: "Contracts",
-            },
+            { title: "MLS & Co", sub: "High Court Work", note: "Litigation" },
+            { title: "Fox & Mandal", sub: "Corporate Work", note: "Contracts" },
         ],
     },
     {
@@ -54,16 +40,8 @@ const FLIP_CARDS = [
         frontStatLabel: "Papers",
         backTitle: "Focus Areas",
         backItems: [
-            {
-                title: "AI Regulation",
-                sub: "Corporate & Policy",
-                note: "Emerging Tech",
-            },
-            {
-                title: "Criminal Law",
-                sub: "Economic Impact",
-                note: "Published",
-            },
+            { title: "AI Regulation", sub: "Corporate & Policy", note: "Emerging Tech" },
+            { title: "Criminal Law", sub: "Economic Impact", note: "Published" },
         ],
     },
     {
@@ -74,16 +52,8 @@ const FLIP_CARDS = [
         frontStatLabel: "Appearances",
         backTitle: "Experience",
         backItems: [
-            {
-                title: "Verdictus Moot",
-                sub: "MTP Act",
-                note: "Speaker",
-            },
-            {
-                title: "KIIT Moot",
-                sub: "Company Law",
-                note: "Speaker",
-            },
+            { title: "Verdictus Moot", sub: "MTP Act", note: "Speaker" },
+            { title: "KIIT Moot", sub: "Company Law", note: "Speaker" },
         ],
     },
     {
@@ -94,16 +64,8 @@ const FLIP_CARDS = [
         frontStatLabel: "Key Areas",
         backTitle: "Capabilities",
         backItems: [
-            {
-                title: "Contract Drafting",
-                sub: "Corporate Work",
-                note: "Practical",
-            },
-            {
-                title: "Legal Research",
-                sub: "Case Analysis",
-                note: "Strong",
-            },
+            { title: "Contract Drafting", sub: "Corporate Work", note: "Practical" },
+            { title: "Legal Research", sub: "Case Analysis", note: "Strong" },
         ],
     },
     {
@@ -114,16 +76,8 @@ const FLIP_CARDS = [
         frontStatLabel: "Domains",
         backTitle: "Areas",
         backItems: [
-            {
-                title: "AI Governance",
-                sub: "Tech Law",
-                note: "Primary",
-            },
-            {
-                title: "Data Protection",
-                sub: "Privacy Law",
-                note: "Core",
-            },
+            { title: "AI Governance", sub: "Tech Law", note: "Primary" },
+            { title: "Data Protection", sub: "Privacy Law", note: "Core" },
         ],
     },
 ];
@@ -132,45 +86,46 @@ const FLIP_CARDS = [
 
 function FlipCard({ card, index }) {
     const [flipped, setFlipped] = useState(false);
+    const [isTouch, setIsTouch] = useState(false);
+
+    useEffect(() => {
+        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    }, []);
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 25 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: index * 0.05 }}
-            className="h-64 cursor-pointer"
+            transition={{ duration: 0.35, delay: index * 0.04 }}
+            className="h-60 cursor-pointer"
             style={{ perspective: "1200px" }}
-            onClick={() => setFlipped(!flipped)}
+            onMouseEnter={() => !isTouch && setFlipped(true)}
+            onMouseLeave={() => !isTouch && setFlipped(false)}
+            onClick={() => isTouch && setFlipped(!flipped)}
         >
             <motion.div
                 animate={{ rotateY: flipped ? 180 : 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.45, ease: "easeInOut" }}
                 className="relative w-full h-full"
                 style={{ transformStyle: "preserve-3d" }}
             >
-
                 {/* FRONT */}
                 <div
-                    className="absolute inset-0 rounded-xl bg-white border border-zinc-200 p-6 flex flex-col justify-between 
-          hover:shadow-md transition-all"
+                    className="absolute inset-0 rounded-xl bg-white border border-zinc-200 p-5 flex flex-col justify-between shadow-sm"
                     style={{ backfaceVisibility: "hidden" }}
                 >
                     <div>
                         <span className="text-[10px] text-zinc-500 uppercase tracking-widest">
                             {card.frontLabel}
                         </span>
-
-                        <h3 className="text-xl font-bold mt-2">
-                            {card.frontTitle}
-                        </h3>
+                        <h3 className="text-lg font-bold mt-2">{card.frontTitle}</h3>
                     </div>
 
                     <div>
-                        <div className="text-4xl font-bold text-[#D2042D] mb-1">
+                        <div className="text-3xl font-bold text-[#D2042D]">
                             {card.frontStat}
                         </div>
-
-                        <p className="text-zinc-500 text-xs uppercase tracking-widest">
+                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest">
                             {card.frontStatLabel}
                         </p>
                     </div>
@@ -178,29 +133,28 @@ function FlipCard({ card, index }) {
 
                 {/* BACK */}
                 <div
-                    className="absolute inset-0 rounded-xl bg-white border border-[#D2042D]/30 p-6 flex flex-col"
+                    className="absolute inset-0 rounded-xl bg-white border border-[#D2042D]/30 p-5 flex flex-col"
                     style={{
                         backfaceVisibility: "hidden",
                         transform: "rotateY(180deg)",
                     }}
                 >
-                    <h4 className="text-[11px] uppercase tracking-widest text-[#D2042D] mb-4">
+                    <h4 className="text-[10px] uppercase tracking-widest text-[#D2042D] mb-3">
                         {card.backTitle}
                     </h4>
 
-                    <ul className="flex flex-col gap-3">
+                    <ul className="flex flex-col gap-2">
                         {card.backItems.map((item, i) => (
-                            <li key={i} className="border-l-2 border-zinc-200 pl-3">
-                                <p className="text-sm font-semibold">{item.title}</p>
-                                <p className="text-xs text-zinc-500">{item.sub}</p>
-                                <p className="text-[10px] text-zinc-400 uppercase">
+                            <li key={i} className="border-l-2 border-zinc-200 pl-2">
+                                <p className="text-xs font-semibold">{item.title}</p>
+                                <p className="text-[10px] text-zinc-500">{item.sub}</p>
+                                <p className="text-[9px] text-zinc-400 uppercase">
                                     {item.note}
                                 </p>
                             </li>
                         ))}
                     </ul>
                 </div>
-
             </motion.div>
         </motion.div>
     );
@@ -210,41 +164,66 @@ function FlipCard({ card, index }) {
 
 export default function Summary() {
     return (
-        <section className="px-4 md:px-12 lg:px-24 py-28 bg-white text-black">
-            <div className="max-w-7xl mx-auto">
+        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+
+            {/* CONTAINER */}
+            <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
 
                 {/* HEADER */}
-                <motion.div className="mb-6">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-2">
+                <div className="mb-3">
+                    <h2 className="text-3xl md:text-5xl font-bold">
                         At a <span className="text-[#D2042D]">Glance</span>
                     </h2>
-
-                    <p className="text-zinc-500 text-sm uppercase tracking-widest">
-                        Tap each card to explore
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest">
+                        Tap or hover each card
                     </p>
-                </motion.div>
+                </div>
 
                 {/* INTRO */}
-                <motion.p className="text-zinc-600 max-w-2xl mb-14 leading-relaxed">
+                <p className="text-zinc-600 text-sm md:text-base max-w-xl mb-4">
                     Final-year BBA LL.B (Hons.) student with experience across litigation,
                     corporate law, intellectual property, and technology law.
-                </motion.p>
+                </p>
 
-                {/* GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {FLIP_CARDS.map((card, index) => (
-                        <FlipCard key={card.id} card={card} index={index} />
-                    ))}
+                {/* CONTENT */}
+                <div className="flex-1 overflow-hidden">
+
+                    {/* DESKTOP GRID */}
+                    <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 overflow-y-auto h-full pr-2">
+                        {FLIP_CARDS.map((card, index) => (
+                            <FlipCard key={card.id} card={card} index={index} />
+                        ))}
+                    </div>
+
+                    {/* MOBILE STACK */}
+                    <div className="md:hidden h-full">
+                        <ScrollStack
+                            itemDistance={70}
+                            itemScale={0.04}
+                            itemStackDistance={18}
+                            stackPosition="30%"
+                            scaleEndPosition="15%"
+                            baseScale={0.92}
+                            blurAmount={1.5}
+                        >
+                            {FLIP_CARDS.map((card, index) => (
+                                <ScrollStackItem key={card.id}>
+                                    <FlipCard card={card} index={index} />
+                                </ScrollStackItem>
+                            ))}
+                        </ScrollStack>
+                    </div>
+
                 </div>
 
                 {/* FOOTER */}
-                <div className="mt-16 border-t border-zinc-200 pt-6">
-                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest">
+                <div className="mt-2 border-t border-zinc-200 pt-2">
+                    <p className="text-zinc-500 text-[9px] uppercase tracking-widest">
                         Swaroop Choudary · Corporate · Litigation · IPR · Technology Law
                     </p>
                 </div>
 
             </div>
-        </section>
+        </div>
     );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import SmoothScroll from "@/components/SmoothScroll";
+// import SmoothScroll from "@/components/SmoothScroll"; ❌ disabled
 
 const inter = Inter({
   subsets: ["latin"],
@@ -9,11 +9,10 @@ const inter = Inter({
   display: "swap",
 });
 
-/* SEO + Professional Positioning */
 export const metadata: Metadata = {
   title: "Swaroop Choudary | Legal Professional",
   description:
-    "Final-year B.B.A. LL.B. (Hons.) student with extensive experience in litigation, corporate law, intellectual property, and technology law. Open to roles in corporate and regulatory practice.",
+    "Final-year B.B.A. LL.B. (Hons.) student with experience in litigation, corporate law, IPR, and technology law.",
   keywords: [
     "Swaroop Choudary",
     "Law Student",
@@ -25,7 +24,6 @@ export const metadata: Metadata = {
   ],
 };
 
-/* Root Layout */
 export default function RootLayout({
   children,
 }: {
@@ -33,15 +31,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${inter.variable} antialiased bg-[#050505] text-white`}
-      >
-        {/* Smooth Scrolling Wrapper */}
-        <SmoothScroll>
-          <main className="relative w-full overflow-x-hidden">
-            {children}
-          </main>
-        </SmoothScroll>
+      <body className={`${inter.variable} antialiased bg-[#050505] text-white`}>
+        <main className="relative w-full overflow-x-hidden">
+          {children}
+        </main>
       </body>
     </html>
   );

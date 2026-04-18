@@ -11,7 +11,7 @@ import Dock from "@/components/Dock";
 
 export default function Home() {
   return (
-    <main className="w-full bg-[#050505] text-white relative overflow-x-hidden">
+    <main className="h-screen w-screen overflow-y-scroll snap-y md:snap-mandatory snap-proximity scroll-smooth bg-[#050505] text-white relative">
 
       {/* GLOBAL BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none -z-50 overflow-hidden">
@@ -26,33 +26,45 @@ export default function Home() {
         <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       </div>
 
-      {/* FLOW = HOOK → PROOF → DEPTH */}
+      {/* SLIDES */}
 
-      <Hero />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Hero />
+      </section>
 
-      {/* Short identity (very important) */}
-      <Summary />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Summary />
+      </section>
 
-      {/* WHAT YOU CAN DO (hook recruiters) */}
-      <Expertise />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Expertise />
+      </section>
 
-      {/* REAL WORK */}
-      <Experience />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Experience />
+      </section>
 
-      {/* INTELLECTUAL DEPTH */}
-      <Publications />
-      <Conferences />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Publications />
+      </section>
 
-      {/* PROOF / VALIDATION */}
-      <Credentials />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Conferences />
+      </section>
 
-      {/* BACKGROUND */}
-      <Education />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Credentials />
+      </section>
 
-      {/* CTA */}
-      <Contact />
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Education />
+      </section>
 
-      {/* FLOATING DOCK */}
+      <section className="snap-start h-screen flex items-center justify-center">
+        <Contact />
+      </section>
+
+      {/* Floating Dock stays global */}
       <Dock />
 
     </main>

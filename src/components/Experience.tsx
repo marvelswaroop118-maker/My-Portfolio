@@ -1,6 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import ScrollStack, { ScrollStackItem } from "./ScrollStack";
+import "./ScrollStack.css";
 
 /* -------------------- DATA -------------------- */
 
@@ -51,97 +53,138 @@ const ALL = [
 
 function Logo({ src, alt, initials }) {
     return (
-        <div className="w-12 h-12 bg-white border border-zinc-200 rounded-lg flex items-center justify-center p-2 shadow-inner shrink-0">
+        <div className="w-11 h-11 bg-white border border-zinc-200 rounded-lg flex items-center justify-center p-2 shadow-inner shrink-0">
             <img
                 src={src}
                 alt={alt}
-                className="w-full h-full object-contain grayscale opacity-70 transition duration-300 group-hover:grayscale-0 group-hover:opacity-100"
+                className="w-full h-full object-contain grayscale opacity-70"
                 onError={(e) => {
                     const img = e.currentTarget;
                     img.style.display = "none";
-                    const parent = img.parentElement;
-                    if (parent) {
-                        const span = document.createElement("span");
-                        span.className = "text-black font-bold text-xs";
-                        span.innerText = initials;
-                        parent.appendChild(span);
-                    }
+                    const span = document.createElement("span");
+                    span.className = "text-black font-bold text-xs";
+                    span.innerText = initials;
+                    img.parentElement?.appendChild(span);
                 }}
             />
         </div>
     );
 }
 
-/* -------------------- COMPONENT -------------------- */
+/* -------------------- MAIN -------------------- */
 
 export default function Experience() {
+    const [isTouch, setIsTouch] = useState(false);
+
+    useEffect(() => {
+        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    }, []);
+
     return (
-        <section className="px-4 md:px-12 lg:px-24 py-24 bg-white text-black" id="experience">
-            <div className="max-w-6xl mx-auto">
+        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+
+            {/* SLIDE CONTAINER */}
+            <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
 
                 {/* HEADER */}
-                <motion.div className="mb-12">
-                    <h2 className="text-4xl font-bold mb-2">
+                <div className="mb-3">
+                    <h2 className="text-3xl md:text-5xl font-bold">
                         Professional <span className="text-[#D2042D]">Experience</span>
                     </h2>
-                    <p className="text-zinc-500 text-sm max-w-md">
+                    <p className="text-zinc-500 text-xs md:text-sm max-w-md mt-2">
                         Practical exposure across litigation, corporate advisory, and regulatory frameworks.
                     </p>
-                </motion.div>
-
-                {/* FEATURED */}
-                <div className="grid md:grid-cols-3 gap-8 mb-20">
-                    {FEATURED.map((item, i) => (
-                        <div
-                            key={i}
-                            className="group bg-white border border-zinc-200 p-7 rounded-xl 
-                            transition-all duration-300 hover:border-[#D2042D]/50 hover:shadow-md hover:-translate-y-1"
-                        >
-                            <Logo src={item.logo} alt={item.firm} initials={item.initials} />
-
-                            <span className="text-[10px] text-[#D2042D] uppercase font-semibold mt-4 block">
-                                {item.tag}
-                            </span>
-
-                            <h3 className="text-lg font-bold mt-1">
-                                {item.firm}
-                            </h3>
-
-                            <p className="text-xs text-zinc-500 mb-3">
-                                {item.role} • {item.duration}
-                            </p>
-
-                            <p className="text-sm text-zinc-600 leading-relaxed">
-                                {item.desc}
-                            </p>
-                        </div>
-                    ))}
                 </div>
 
-                {/* ALL */}
-                <div className="grid md:grid-cols-2 gap-5">
-                    {ALL.map((item, i) => (
-                        <div
-                            key={i}
-                            className="group flex gap-4 items-start bg-white border border-zinc-200 p-5 rounded-lg 
-                            transition-all duration-300 hover:border-[#D2042D]/40 hover:shadow-sm hover:-translate-y-[2px]"
-                        >
-                            <Logo src={item.logo} alt={item.firm} initials={item.initials} />
+                {/* CONTENT */}
+                <div className="flex-1 flex flex-col gap-3 min-h-0">
 
-                            <div>
-                                <h4 className="text-sm font-semibold">
-                                    {item.firm}
-                                </h4>
-
-                                <p className="text-xs text-zinc-600 mt-1 leading-relaxed">
-                                    {item.desc}
-                                </p>
+                    {/* FEATURED */}
+                    <div className="h-[45%] min-h-[220px]">
+                        {isTouch ? (
+                            <ScrollStack baseScale={0.92} itemStackDistance={20}>
+                                {FEATURED.map((item, i) => (
+                                    <ScrollStackItem key={i}>
+                                        <FeaturedCard item={item} />
+                                    </ScrollStackItem>
+                                ))}
+                            </ScrollStack>
+                        ) : (
+                            <div className="grid md:grid-cols-3 gap-4 h-full overflow-y-auto pr-2">
+                                {FEATURED.map((item, i) => (
+                                    <FeaturedCard key={i} item={item} />
+                                ))}
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        )}
+                    </div>
 
+                    {/* HEADING */}
+                    <div className="flex-shrink-0">
+                        <h3 className="text-[11px] uppercase tracking-widest text-zinc-500">
+                            Additional Internships
+                        </h3>
+                    </div>
+
+                    {/* ALL */}
+                    <div className="flex-1 min-h-[250px]">
+                        {isTouch ? (
+                            <ScrollStack itemScale={0.03} itemStackDistance={15}>
+                                {ALL.map((item, i) => (
+                                    <ScrollStackItem key={i}>
+                                        <MiniCard item={item} />
+                                    </ScrollStackItem>
+                                ))}
+                            </ScrollStack>
+                        ) : (
+                            <div className="grid md:grid-cols-2 gap-4 h-full overflow-y-auto pr-2">
+                                {ALL.map((item, i) => (
+                                    <MiniCard key={i} item={item} />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                </div>
             </div>
-        </section>
+        </div>
+    );
+}
+
+/* -------------------- CARDS -------------------- */
+
+function FeaturedCard({ item }) {
+    return (
+        <div className="bg-white border border-zinc-200 p-5 rounded-xl shadow-sm">
+            <Logo src={item.logo} alt={item.firm} initials={item.initials} />
+
+            <span className="text-[10px] text-[#D2042D] uppercase font-semibold mt-3 block">
+                {item.tag}
+            </span>
+
+            <h3 className="text-sm font-bold mt-1">{item.firm}</h3>
+
+            <p className="text-[10px] text-zinc-500 mb-2">
+                {item.role} • {item.duration}
+            </p>
+
+            <p className="text-xs text-zinc-600 leading-relaxed">
+                {item.desc}
+            </p>
+        </div>
+    );
+}
+
+function MiniCard({ item }) {
+    return (
+        <div className="flex gap-3 items-start bg-white border border-zinc-200 p-4 rounded-lg">
+            <Logo src={item.logo} alt={item.firm} initials={item.initials} />
+
+            <div>
+                <h4 className="text-xs font-semibold">{item.firm}</h4>
+                <p className="text-[10px] text-zinc-600 mt-1 leading-relaxed">
+                    {item.desc}
+                </p>
+            </div>
+        </div>
     );
 }

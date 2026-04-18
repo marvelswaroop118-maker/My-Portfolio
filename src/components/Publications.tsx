@@ -1,6 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import ScrollStack, { ScrollStackItem } from "./ScrollStack";
+import "./ScrollStack.css";
+
+/* ---------------- DATA ---------------- */
 
 const PUBLICATIONS_DATA = [
     {
@@ -54,83 +59,150 @@ const PUBLICATIONS_DATA = [
     }
 ];
 
-export default function Publications() {
+/* ---------------- CARD ---------------- */
+
+function PublicationCard({ article, index }) {
+    const [flipped, setFlipped] = useState(false);
+    const [isTouch, setIsTouch] = useState(false);
+
+    useEffect(() => {
+        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    }, []);
+
+    const hasLink = article.link !== "#";
+
+    const handleClick = () => {
+        if (isTouch) {
+            if (!flipped) {
+                setFlipped(true);
+            } else if (hasLink) {
+                window.open(article.link, "_blank");
+            } else {
+                setFlipped(false);
+            }
+        }
+    };
+
     return (
-        <section className="px-4 md:px-12 lg:px-24 py-24 bg-white text-black" id="publications">
-            <div className="max-w-7xl mx-auto">
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, delay: index * 0.04 }}
+            className="h-48 cursor-pointer"
+            style={{ perspective: "1200px" }}
+            onMouseEnter={() => !isTouch && setFlipped(true)}
+            onMouseLeave={() => !isTouch && setFlipped(false)}
+            onClick={handleClick}
+        >
+            <motion.div
+                animate={{ rotateY: flipped ? 180 : 0 }}
+                transition={{ duration: 0.45 }}
+                className="relative w-full h-full"
+                style={{ transformStyle: "preserve-3d" }}
+            >
+
+                {/* FRONT */}
+                <div
+                    className="absolute inset-0 bg-white border border-zinc-200 rounded-xl flex flex-col p-4 shadow-sm"
+                    style={{ backfaceVisibility: "hidden" }}
+                >
+                    <div className={`h-1 w-full bg-gradient-to-r ${article.color} mb-3`} />
+
+                    <span className="text-[9px] font-bold px-2 py-1 rounded bg-zinc-100 text-[#D2042D] uppercase tracking-widest w-fit mb-2">
+                        {article.category}
+                    </span>
+
+                    <h3 className="text-xs font-bold text-black line-clamp-3 mb-2">
+                        {article.title}
+                    </h3>
+
+                    <p className="text-[10px] text-zinc-500 mt-auto">
+                        {article.venue}
+                    </p>
+
+                    <p className="text-[9px] text-zinc-400 mt-2 uppercase tracking-widest">
+                        {isTouch ? "Tap to flip" : "Hover to explore"}
+                    </p>
+                </div>
+
+                {/* BACK */}
+                <div
+                    className="absolute inset-0 bg-[#D2042D] rounded-xl flex flex-col items-center justify-center text-center p-4"
+                    style={{
+                        backfaceVisibility: "hidden",
+                        transform: "rotateY(180deg)",
+                    }}
+                >
+                    <span className="text-white/70 text-[9px] uppercase tracking-widest">
+                        {article.category}
+                    </span>
+
+                    <h4 className="text-white text-xs font-bold mt-2 line-clamp-3">
+                        {article.title}
+                    </h4>
+
+                    {hasLink ? (
+                        <span className="text-white text-[10px] font-bold uppercase tracking-widest border border-white/40 px-3 py-1.5 mt-3 rounded-sm">
+                            Read Now →
+                        </span>
+                    ) : (
+                        <span className="text-white/60 text-[10px] uppercase mt-3">
+                            Coming Soon
+                        </span>
+                    )}
+                </div>
+
+            </motion.div>
+        </motion.div>
+    );
+}
+
+/* ---------------- MAIN ---------------- */
+
+export default function Publications() {
+    const [isTouch, setIsTouch] = useState(false);
+
+    useEffect(() => {
+        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    }, []);
+
+    return (
+        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+
+            <div className="w-full max-w-7xl h-[90vh] flex flex-col px-4 md:px-8">
 
                 {/* HEADER */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    className="mb-12"
-                >
-                    <h2 className="text-4xl md:text-5xl font-bold mb-2 tracking-tight">
-                        Legal{" "}
-                        <span className="text-[#D2042D]">
-                            Scholarship
-                        </span>
+                <div className="mb-4">
+                    <h2 className="text-3xl md:text-5xl font-bold">
+                        Legal <span className="text-[#D2042D]">Scholarship</span>
                     </h2>
-
-                    <p className="text-zinc-500 text-sm font-mono uppercase tracking-widest">
+                    <p className="text-zinc-500 text-xs uppercase tracking-widest mt-1">
                         Published Research & Articles
                     </p>
-                </motion.div>
+                </div>
 
-                {/* GRID */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {/* CONTENT */}
+                <div className="flex-1 min-h-0">
 
-                    {PUBLICATIONS_DATA.map((article, index) => (
-                        <motion.a
-                            key={index}
-                            href={article.link !== "#" ? article.link : undefined}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: index * 0.05 }}
-                            className="group relative bg-white border border-zinc-200 rounded-xl flex flex-col 
-              hover:border-[#D2042D]/50 transition-all shadow-sm overflow-hidden"
-                        >
-
-                            {/* Top Accent */}
-                            <div className={`h-1 w-full bg-gradient-to-r ${article.color}`} />
-
-                            {/* CONTENT */}
-                            <div className="p-5 flex flex-col h-full">
-
-                                {/* Category */}
-                                <span className="text-[10px] font-bold px-2.5 py-1 rounded bg-zinc-100 text-[#D2042D] border border-zinc-200 uppercase tracking-widest w-fit mb-3">
-                                    {article.category}
-                                </span>
-
-                                {/* Title */}
-                                <h3 className="text-sm md:text-base font-bold text-black mb-2 leading-snug">
-                                    {article.title}
-                                </h3>
-
-                                {/* Venue */}
-                                <p className="text-zinc-600 text-xs mb-4 flex-1">
-                                    {article.venue}
-                                </p>
-                            </div>
-
-                            {/* HOVER OVERLAY */}
-                            {article.link !== "#" && (
-                                <div className="absolute inset-0 bg-white/95 flex items-center justify-center 
-                opacity-0 group-hover:opacity-100 transition duration-300">
-                                    <span className="text-[#D2042D] text-xs font-bold uppercase tracking-widest">
-                                        View Now →
-                                    </span>
-                                </div>
-                            )}
-
-                        </motion.a>
-                    ))}
+                    {isTouch ? (
+                        <ScrollStack itemScale={0.04} itemStackDistance={18}>
+                            {PUBLICATIONS_DATA.map((article, index) => (
+                                <ScrollStackItem key={index}>
+                                    <PublicationCard article={article} index={index} />
+                                </ScrollStackItem>
+                            ))}
+                        </ScrollStack>
+                    ) : (
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto pr-2">
+                            {PUBLICATIONS_DATA.map((article, index) => (
+                                <PublicationCard key={index} article={article} index={index} />
+                            ))}
+                        </div>
+                    )}
 
                 </div>
 
             </div>
-        </section>
+        </div>
     );
 }
