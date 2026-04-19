@@ -160,19 +160,15 @@ function PublicationCard({ article, index }) {
 /* ---------------- MAIN ---------------- */
 
 export default function Publications() {
-    const [isTouch, setIsTouch] = useState(false);
-
-    useEffect(() => {
-        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    }, []);
-
     return (
-        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+        // 1. Swapped h-full to min-h-[100dvh] to prevent the mobile viewport from clipping
+        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black overflow-hidden py-12 lg:py-0">
 
-            <div className="w-full max-w-7xl h-[90vh] flex flex-col px-4 md:px-8">
+            {/* 2. Removed px-4 from this wrapper so the ScrollStack can reach the absolute edges of the phone */}
+            <div className="w-full max-w-7xl mx-auto flex flex-col h-[85vh] lg:h-[90vh]">
 
-                {/* HEADER */}
-                <div className="mb-4">
+                {/* HEADER - Padding applied locally here instead */}
+                <div className="mb-4 px-5 md:px-8 shrink-0">
                     <h2 className="text-3xl md:text-5xl font-bold">
                         Legal <span className="text-[#D2042D]">Scholarship</span>
                     </h2>
@@ -181,24 +177,35 @@ export default function Publications() {
                     </p>
                 </div>
 
-                {/* CONTENT */}
-                <div className="flex-1 min-h-0">
+                {/* CONTENT AREA */}
+                <div className="flex-1 w-full relative">
 
-                    {isTouch ? (
-                        <ScrollStack itemScale={0.04} itemStackDistance={18}>
+                    {/* DESKTOP GRID */}
+                    <div className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto px-8 pb-8">
+                        {PUBLICATIONS_DATA.map((article, index) => (
+                            <PublicationCard key={index} article={article} index={index} />
+                        ))}
+                    </div>
+
+                    {/* MOBILE STACK (Now 100% Edge-to-Edge) */}
+                    <div className="md:hidden absolute inset-0 w-full h-full">
+                        <ScrollStack
+                            itemDistance={70}
+                            itemScale={0.04}
+                            itemStackDistance={18}
+                            stackPosition="15%"
+                            scaleEndPosition="5%"
+                            baseScale={0.92}
+                            /* 3. Padding moved inside the scroll area, creating a massive touch target */
+                            className="w-full h-full px-5 pb-10"
+                        >
                             {PUBLICATIONS_DATA.map((article, index) => (
                                 <ScrollStackItem key={index}>
                                     <PublicationCard article={article} index={index} />
                                 </ScrollStackItem>
                             ))}
                         </ScrollStack>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto pr-2">
-                            {PUBLICATIONS_DATA.map((article, index) => (
-                                <PublicationCard key={index} article={article} index={index} />
-                            ))}
-                        </div>
-                    )}
+                    </div>
 
                 </div>
 

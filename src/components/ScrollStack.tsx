@@ -46,6 +46,7 @@ const ScrollStack = ({
 }) => {
     const scrollerRef = useRef<HTMLDivElement>(null);
     const cardsRef = useRef<HTMLElement[]>([]);
+    const cardsTopsRef = useRef<number[]>([]); // Cache tops to prevent layout thrashing
     const animationFrameRef = useRef<number | null>(null);
     const lenisRef = useRef<any>(null);
     const isStackCompleteRef = useRef(false);
@@ -90,7 +91,6 @@ const ScrollStack = ({
         const inner = scroller.querySelector(".scroll-stack-inner");
         const totalScrollable = (inner?.scrollHeight ?? 0) - containerHeight;
 
-        // Check if we've reached the bottom of the stack
         const complete = scrollTop >= totalScrollable - 2;
 
         if (complete !== isStackCompleteRef.current) {
@@ -104,7 +104,7 @@ const ScrollStack = ({
     /* ─────────── TRANSFORMS ─────────── */
 
     const updateTransforms = useCallback(() => {
-        if (!cardsRef.current.length) return;
+        if (!cardsRef.current.length || !cardsTopsRef.current.length) return;
 
         const { scrollTop, containerHeight } = getScrollData();
         const stackPos = parsePercentage(stackPosition, containerHeight);
@@ -113,22 +113,23 @@ const ScrollStack = ({
         cardsRef.current.forEach((card, i) => {
             if (!card) return;
 
-            const top = getOffset(card);
+            // Use cached tops for massive performance boost & to fix Safari sticky bugs
+            const top = cardsTopsRef.current[i];
             const start = top - stackPos - itemStackDistance * i;
             const end = top - scaleEnd;
             const progress = calculateProgress(scrollTop, start, end);
             const targetScale = baseScale + i * itemScale;
-            const scale = 1 - progress * (1 - targetScale);
-            const translateY =
-                scrollTop >= start
-                    ? scrollTop - top + stackPos + itemStackDistance * i
-                    : 0;
 
-            card.style.transform = `translate3d(0, ${translateY}px, 0) scale(${scale})`;
+            // Clamp progress so math doesn't break boundaries
+            const clampedProgress = Math.max(0, Math.min(1, progress));
+            const scale = 1 - clampedProgress * (1 - targetScale);
+
+            // FIX: Only apply scale! Let CSS `position: sticky` handle the Y-axis pinning.
+            card.style.transform = `scale(${scale})`;
 
             // Blur support
-            if (blurAmount > 0 && progress > 0) {
-                card.style.filter = `blur(${(progress * blurAmount).toFixed(2)}px)`;
+            if (blurAmount > 0 && clampedProgress > 0) {
+                card.style.filter = `blur(${(clampedProgress * blurAmount).toFixed(2)}px)`;
             } else {
                 card.style.filter = "";
             }
@@ -151,14 +152,12 @@ const ScrollStack = ({
     const setupLenis = useCallback(() => {
         const scroller = scrollerRef.current!;
 
-        // Let Lenis handle desktop wheel smoothing, but it will automatically
-        // yield to native momentum scrolling on iOS and Android devices.
         const lenis = new Lenis({
             wrapper: useWindowScroll ? window : scroller,
             content: useWindowScroll ? document.documentElement : scroller.querySelector(".scroll-stack-inner") as HTMLElement,
             duration: 1.2,
             smoothWheel: true,
-            syncTouch: false, // CRITICAL: Ensures native touch momentum is not hijacked
+            syncTouch: false, // Let mobile natively scroll
         });
 
         lenis.on("scroll", updateTransforms);
@@ -171,12 +170,12 @@ const ScrollStack = ({
         animationFrameRef.current = requestAnimationFrame(raf);
         lenisRef.current = lenis;
 
-        // Fallback for native scrolling events (ensures transforms run even if Lenis pauses)
-        const scrollTarget = useWindowScroll ? window : scroller;
-        scrollTarget.addEventListener("scroll", updateTransforms, { passive: true });
+        // NOTE: We removed the duplicate native scroll event listener here 
+        // because it was double-firing and causing severe frame tearing.
 
         return () => {
-            scrollTarget.removeEventListener("scroll", updateTransforms);
+            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+            if (lenisRef.current) lenisRef.current.destroy();
         };
     }, [updateTransforms, useWindowScroll]);
 
@@ -192,23 +191,33 @@ const ScrollStack = ({
         );
         cardsRef.current = cards;
 
+        // 1. Reset all to static briefly to calculate accurate document offsets
+        cards.forEach(card => (card.style.position = "static"));
+        cardsTopsRef.current = cards.map(card => getOffset(card));
+
+        // 2. Apply native sticky behavior
         cards.forEach((card, i) => {
             if (i < cards.length - 1) {
                 card.style.marginBottom = `${itemDistance}px`;
             }
-            card.style.willChange = "transform";
+
+            // Lock to browser GPU for zero-jitter pinning
+            card.style.position = "sticky";
+
+            const posValue = typeof stackPosition === "number" ? `${stackPosition}px` : stackPosition;
+            card.style.top = `calc(${posValue} + ${itemStackDistance * i}px)`;
+
+            card.style.willChange = "transform, filter";
             card.style.transformOrigin = "top center";
         });
 
-        const cleanupNativeScroll = setupLenis();
+        const cleanupLenis = setupLenis();
         updateTransforms();
 
         return () => {
-            if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-            if (lenisRef.current) lenisRef.current.destroy();
-            cleanupNativeScroll();
+            cleanupLenis();
         };
-    }, [itemDistance, setupLenis, updateTransforms, useWindowScroll]);
+    }, [itemDistance, setupLenis, updateTransforms, useWindowScroll, stackPosition, itemStackDistance]);
 
     /* ─────────── RENDER ─────────── */
 
