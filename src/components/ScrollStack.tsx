@@ -180,8 +180,10 @@ const ScrollStack = ({
         };
 
         const handleTouchMove = (e: TouchEvent) => {
-            const deltaY = touchStartYRef.current - e.touches[0].clientY;
-            const deltaX = Math.abs(touchStartXRef.current - e.touches[0].clientX);
+            const currentY = e.touches[0].clientY;
+            const currentX = e.touches[0].clientX;
+            const deltaY = touchStartYRef.current - currentY;
+            const deltaX = Math.abs(touchStartXRef.current - currentX);
 
             if (deltaX > Math.abs(deltaY) * 1.5) return; // horizontal swipe — ignore
 
@@ -189,14 +191,20 @@ const ScrollStack = ({
             const scrollingUp = deltaY < 0;
 
             // Allow page to scroll DOWN only when stack is fully complete
-            if (isStackCompleteRef.current && scrollingDown) return;
+            if (isStackCompleteRef.current && scrollingDown) {
+                touchStartYRef.current = currentY; // FIX: Update ref before returning
+                return;
+            }
 
             // Allow page to scroll UP only when stack is at the very top
-            if (scroller.scrollTop <= 0 && scrollingUp) return;
+            if (scroller.scrollTop <= 0 && scrollingUp) {
+                touchStartYRef.current = currentY; // FIX: Update ref before returning
+                return;
+            }
 
             e.preventDefault();
             scroller.scrollTop += deltaY;
-            touchStartYRef.current = e.touches[0].clientY;
+            touchStartYRef.current = currentY;
         };
 
         window.addEventListener("wheel", handleWheel, { passive: false });
