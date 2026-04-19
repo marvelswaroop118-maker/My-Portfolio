@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import ScrollStack, { ScrollStackItem } from "./ScrollStack";
 import "./ScrollStack.css";
 
@@ -135,146 +134,109 @@ function SectionHeadingCard({
 /* ─────────────────────────── MAIN ─────────────────────────── */
 
 export default function Experience() {
-    const [isTouch, setIsTouch] = useState(false);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
-        setMounted(true);
-    }, []);
-
-    /* ── DESKTOP ────────────────────────────────────────────── */
-    const desktopView = (
-        <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
-
-            {/* Page header */}
-            <div className="mb-4 flex-shrink-0">
-                <h2 className="text-3xl md:text-5xl font-bold">
-                    Professional <span className="text-[#D2042D]">Experience</span>
-                </h2>
-                <p className="text-zinc-500 text-xs md:text-sm max-w-md mt-2">
-                    Practical exposure across litigation, corporate advisory, and regulatory frameworks.
-                </p>
-            </div>
-
-            <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-y-auto pr-2">
-
-                {/* Featured section */}
-                <div>
-                    <h3 className="text-[11px] uppercase tracking-widest text-zinc-500 mb-3">
-                        Featured Experience
-                    </h3>
-                    <div className="grid md:grid-cols-3 gap-4">
-                        {FEATURED.map((item, i) => (
-                            <FeaturedCard key={i} item={item} />
-                        ))}
-                    </div>
-                </div>
-
-                {/* Additional section */}
-                <div>
-                    <h3 className="text-[11px] uppercase tracking-widest text-zinc-500 mb-3">
-                        Additional Internships
-                    </h3>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        {ALL.map((item, i) => (
-                            <MiniCard key={i} item={item} />
-                        ))}
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    );
-
-    /* ── MOBILE — single ScrollStack, headings are stack items too ── */
-    //
-    // Scroll sequence:
-    //   [0] Page header  → stacks & locks at very top
-    //   [1] "Featured Experience" heading → stacks just below
-    //   [2] MLS card
-    //   [3] Fox & Mandal card
-    //   [4] Muralidhar Unnam card
-    //   [5] "Additional Internships" heading → stacks below featured heading
-    //   [6-15] 10 mini cards
-    //
-    const mobileView = (
-        <div className="w-full h-screen">
-            <ScrollStack
-                itemDistance={80}
-                itemScale={0.03}
-                itemStackDistance={14}
-                stackPosition="18%"
-                scaleEndPosition="8%"
-                baseScale={0.88}
-            >
-                {/* ── [0] Page header ── */}
-                <ScrollStackItem itemClassName="experience-heading-card">
-                    <div className="bg-white w-full pt-2 pb-3 px-1">
-                        <h2 className="text-2xl font-bold leading-tight">
-                            Professional{" "}
-                            <span className="text-[#D2042D]">Experience</span>
-                        </h2>
-                        <p className="text-zinc-500 text-xs mt-1 max-w-xs">
-                            Practical exposure across litigation, corporate advisory, and regulatory frameworks.
-                        </p>
-                    </div>
-                </ScrollStackItem>
-
-                {/* ── [1] Featured heading ── */}
-                <ScrollStackItem itemClassName="experience-heading-card">
-                    <SectionHeadingCard
-                        label="Section 01"
-                        title="Featured"
-                        accent="Experience"
-                    />
-                </ScrollStackItem>
-
-                {/* ── [2-4] Featured cards ── */}
-                {FEATURED.map((item, i) => (
-                    <ScrollStackItem key={`featured-${i}`}>
-                        <FeaturedCard item={item} />
-                    </ScrollStackItem>
-                ))}
-
-                {/* ── [5] Additional heading ── */}
-                <ScrollStackItem itemClassName="experience-heading-card">
-                    <SectionHeadingCard
-                        label="Section 02"
-                        title="Additional"
-                        accent="Internships"
-                        subtitle="10 internships across litigation, IP, and corporate law."
-                    />
-                </ScrollStackItem>
-
-                {/* ── [6-15] Mini cards ── */}
-                {ALL.map((item, i) => (
-                    <ScrollStackItem key={`all-${i}`}>
-                        <MiniCard item={item} />
-                    </ScrollStackItem>
-                ))}
-            </ScrollStack>
-        </div>
-    );
-
-    // Avoid hydration mismatch — render nothing until client detects touch
-    if (!mounted) {
-        return (
-            <div className="h-full w-full flex items-center justify-center bg-white">
-                <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
-                    <div className="mb-4">
-                        <h2 className="text-3xl md:text-5xl font-bold">
-                            Professional <span className="text-[#D2042D]">Experience</span>
-                        </h2>
-                    </div>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
-            {isTouch ? mobileView : desktopView}
+        // 1. Swapped to min-h-[100dvh] to prevent the mobile viewport from clipping
+        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black overflow-hidden py-12 lg:py-0">
+
+            {/* ── DESKTOP VIEW ── */}
+            <div className="hidden md:flex w-full max-w-6xl mx-auto flex-col h-[90vh] px-8">
+
+                {/* Page header */}
+                <div className="mb-4 flex-shrink-0">
+                    <h2 className="text-3xl md:text-5xl font-bold">
+                        Professional <span className="text-[#D2042D]">Experience</span>
+                    </h2>
+                    <p className="text-zinc-500 text-sm max-w-md mt-2">
+                        Practical exposure across litigation, corporate advisory, and regulatory frameworks.
+                    </p>
+                </div>
+
+                <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-y-auto pr-2 pb-8">
+                    {/* Featured section */}
+                    <div>
+                        <h3 className="text-[11px] uppercase tracking-widest text-zinc-500 mb-3">
+                            Featured Experience
+                        </h3>
+                        <div className="grid md:grid-cols-3 gap-4">
+                            {FEATURED.map((item, i) => (
+                                <FeaturedCard key={i} item={item} />
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Additional section */}
+                    <div>
+                        <h3 className="text-[11px] uppercase tracking-widest text-zinc-500 mb-3">
+                            Additional Internships
+                        </h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {ALL.map((item, i) => (
+                                <MiniCard key={i} item={item} />
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── MOBILE VIEW (100% Edge-to-Edge Touch Trap) ── */}
+            <div className="md:hidden absolute inset-0 w-full h-full">
+                <ScrollStack
+                    itemDistance={80}
+                    itemScale={0.03}
+                    itemStackDistance={14}
+                    stackPosition="18%"
+                    scaleEndPosition="8%"
+                    baseScale={0.88}
+                    // 2. Padding moved inside the scroll area to create a massive touch target
+                    className="w-full h-full px-5 pt-8 pb-10"
+                >
+                    {/* ── [0] Page header ── */}
+                    <ScrollStackItem itemClassName="experience-heading-card">
+                        <div className="bg-white w-full pt-2 pb-3 px-1">
+                            <h2 className="text-2xl font-bold leading-tight">
+                                Professional{" "}
+                                <span className="text-[#D2042D]">Experience</span>
+                            </h2>
+                            <p className="text-zinc-500 text-xs mt-1 max-w-xs">
+                                Practical exposure across litigation, corporate advisory, and regulatory frameworks.
+                            </p>
+                        </div>
+                    </ScrollStackItem>
+
+                    {/* ── [1] Featured heading ── */}
+                    <ScrollStackItem itemClassName="experience-heading-card">
+                        <SectionHeadingCard
+                            label="Section 01"
+                            title="Featured"
+                            accent="Experience"
+                        />
+                    </ScrollStackItem>
+
+                    {/* ── [2-4] Featured cards ── */}
+                    {FEATURED.map((item, i) => (
+                        <ScrollStackItem key={`featured-${i}`}>
+                            <FeaturedCard item={item} />
+                        </ScrollStackItem>
+                    ))}
+
+                    {/* ── [5] Additional heading ── */}
+                    <ScrollStackItem itemClassName="experience-heading-card">
+                        <SectionHeadingCard
+                            label="Section 02"
+                            title="Additional"
+                            accent="Internships"
+                            subtitle="10 internships across litigation, IP, and corporate law."
+                        />
+                    </ScrollStackItem>
+
+                    {/* ── [6-15] Mini cards ── */}
+                    {ALL.map((item, i) => (
+                        <ScrollStackItem key={`all-${i}`}>
+                            <MiniCard item={item} />
+                        </ScrollStackItem>
+                    ))}
+                </ScrollStack>
+            </div>
         </div>
     );
 }

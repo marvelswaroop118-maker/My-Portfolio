@@ -38,32 +38,34 @@ const SPECIALISATION = [
 
 export default function Expertise() {
   return (
-    <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+    // 1. Swapped h-full to min-h-[100dvh] and removed overflow-hidden to let the page breathe naturally
+    <div className="relative w-full min-h-[100dvh] flex items-center justify-center bg-white text-black py-16 lg:py-0">
 
-      {/* CONTAINER */}
-      <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
+      {/* 2. Swapped to min-h-[90vh] so the container can expand to fit content on mobile */}
+      <div className="w-full max-w-6xl min-h-[90vh] flex flex-col justify-center px-5 md:px-8">
 
         {/* HEADER */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="mb-4"
+          className="mb-6 md:mb-8"
         >
           <h2 className="text-3xl md:text-5xl font-bold">
             Core <span className="text-[#D2042D]">Expertise</span>
           </h2>
 
-          <p className="text-zinc-500 text-xs md:text-sm max-w-md mt-2">
+          <p className="text-zinc-500 text-sm md:text-base max-w-md mt-3 leading-relaxed">
             Developed through litigation exposure, corporate work, and focused
             research in emerging areas of law.
           </p>
         </motion.div>
 
         {/* CONTENT */}
-        <div className="flex-1 overflow-hidden">
+        {/* 3. Removed the nested 'overflow-y-auto' so native mobile scrolling takes over */}
+        <div className="w-full">
 
-          <div className="grid md:grid-cols-2 gap-4 md:gap-6 h-full overflow-y-auto pr-2">
+          <div className="grid md:grid-cols-2 gap-4 md:gap-6 w-full">
 
             <Card title="Practice Areas" items={PRACTICE_AREAS} />
 
@@ -84,7 +86,16 @@ export default function Expertise() {
 
 /* ---------------- CARD ---------------- */
 
-function Card({ title, items, highlight, strong, subtle }) {
+// Added strict types here to prevent Vercel build failures!
+interface CardProps {
+  title: string;
+  items: string[];
+  highlight?: boolean;
+  strong?: boolean;
+  subtle?: boolean;
+}
+
+function Card({ title, items, highlight, strong, subtle }: CardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -104,12 +115,10 @@ function Card({ title, items, highlight, strong, subtle }) {
             className={`
               text-[10px] md:text-[11px] px-3 py-1.5 rounded-md border transition
 
-              ${highlight && "bg-[#D2042D] text-white border-[#D2042D]"}
-              ${strong && "bg-zinc-100 text-black border-zinc-300 font-medium"}
-              ${subtle && "bg-transparent text-zinc-500 border-zinc-200"}
-              ${!highlight && !strong && !subtle &&
-              "bg-white text-black border-zinc-200"
-              }
+              ${highlight ? "bg-[#D2042D] text-white border-[#D2042D]" : ""}
+              ${strong ? "bg-zinc-100 text-black border-zinc-300 font-medium" : ""}
+              ${subtle ? "bg-transparent text-zinc-500 border-zinc-200" : ""}
+              ${!highlight && !strong && !subtle ? "bg-white text-black border-zinc-200" : ""}
             `}
           >
             {item}

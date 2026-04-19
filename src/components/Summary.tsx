@@ -164,47 +164,50 @@ function FlipCard({ card, index }) {
 
 export default function Summary() {
     return (
-        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+        // 1. Swapped h-full to min-h-[100dvh] to prevent the mobile viewport from clipping
+        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black overflow-hidden py-12 lg:py-0">
 
-            {/* CONTAINER */}
-            <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
+            {/* 2. Removed px-4 from this wrapper so the ScrollStack can reach the absolute edges of the phone */}
+            <div className="w-full max-w-6xl mx-auto flex flex-col h-[85vh] lg:h-[90vh]">
 
-                {/* HEADER */}
-                <div className="mb-3">
+                {/* HEADER - Padding applied locally here instead */}
+                <div className="mb-3 px-5 md:px-8 shrink-0">
                     <h2 className="text-3xl md:text-5xl font-bold">
                         At a <span className="text-[#D2042D]">Glance</span>
                     </h2>
-                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest">
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest mt-1">
                         Tap or hover each card
                     </p>
                 </div>
 
-                {/* INTRO */}
-                <p className="text-zinc-600 text-sm md:text-base max-w-xl mb-4">
+                {/* INTRO - Padding applied locally here instead */}
+                <p className="text-zinc-600 text-sm md:text-base max-w-xl mb-4 px-5 md:px-8 shrink-0">
                     Final-year BBA LL.B (Hons.) student with experience across litigation,
                     corporate law, intellectual property, and technology law.
                 </p>
 
-                {/* CONTENT */}
-                <div className="flex-1 overflow-hidden">
+                {/* CONTENT AREA */}
+                <div className="flex-1 w-full relative">
 
                     {/* DESKTOP GRID */}
-                    <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 overflow-y-auto h-full pr-2">
+                    <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 overflow-y-auto h-full px-8 pb-8">
                         {FLIP_CARDS.map((card, index) => (
                             <FlipCard key={card.id} card={card} index={index} />
                         ))}
                     </div>
 
-                    {/* MOBILE STACK */}
-                    <div className="md:hidden h-full">
+                    {/* MOBILE STACK (Now 100% Edge-to-Edge) */}
+                    <div className="md:hidden absolute inset-0 w-full h-full">
                         <ScrollStack
                             itemDistance={70}
                             itemScale={0.04}
                             itemStackDistance={18}
-                            stackPosition="30%"
-                            scaleEndPosition="15%"
+                            stackPosition="20%"
+                            scaleEndPosition="5%"
                             baseScale={0.92}
                             blurAmount={1.5}
+                            /* 3. Padding moved inside the scroll area, creating a massive touch target */
+                            className="w-full h-full px-5 pb-10"
                         >
                             {FLIP_CARDS.map((card, index) => (
                                 <ScrollStackItem key={card.id}>
@@ -216,8 +219,8 @@ export default function Summary() {
 
                 </div>
 
-                {/* FOOTER */}
-                <div className="mt-2 border-t border-zinc-200 pt-2">
+                {/* FOOTER - Padding applied locally here instead */}
+                <div className="mt-4 border-t border-zinc-200 pt-3 px-5 md:px-8 shrink-0">
                     <p className="text-zinc-500 text-[9px] uppercase tracking-widest">
                         Swaroop Choudary · Corporate · Litigation · IPR · Technology Law
                     </p>
