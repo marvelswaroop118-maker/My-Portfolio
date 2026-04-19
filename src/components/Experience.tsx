@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import ScrollStack, { ScrollStackItem } from "./ScrollStack";
 import "./ScrollStack.css";
 
-/* -------------------- DATA -------------------- */
+/* ─────────────────────────── DATA ─────────────────────────── */
 
 const FEATURED = [
     {
@@ -49,9 +49,9 @@ const ALL = [
     { firm: "M.V. Foundation", logo: "/Experience/MV.png", initials: "MVF", desc: "Worked on social impact research and stakeholder reporting." },
 ];
 
-/* -------------------- LOGO -------------------- */
+/* ─────────────────────────── LOGO ─────────────────────────── */
 
-function Logo({ src, alt, initials }) {
+function Logo({ src, alt, initials }: { src: string; alt: string; initials: string }) {
     return (
         <div className="w-11 h-11 bg-white border border-zinc-200 rounded-lg flex items-center justify-center p-2 shadow-inner shrink-0">
             <img
@@ -71,120 +71,210 @@ function Logo({ src, alt, initials }) {
     );
 }
 
-/* -------------------- MAIN -------------------- */
+/* ─────────────────────────── CARDS ─────────────────────────── */
 
-export default function Experience() {
-    const [isTouch, setIsTouch] = useState(false);
-
-    useEffect(() => {
-        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    }, []);
-
+function FeaturedCard({ item }: { item: typeof FEATURED[number] }) {
     return (
-        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
-
-            {/* SLIDE CONTAINER */}
-            <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
-
-                {/* HEADER */}
-                <div className="mb-3">
-                    <h2 className="text-3xl md:text-5xl font-bold">
-                        Professional <span className="text-[#D2042D]">Experience</span>
-                    </h2>
-                    <p className="text-zinc-500 text-xs md:text-sm max-w-md mt-2">
-                        Practical exposure across litigation, corporate advisory, and regulatory frameworks.
-                    </p>
-                </div>
-
-                {/* CONTENT */}
-                <div className="flex-1 flex flex-col gap-3 min-h-0">
-
-                    {/* FEATURED */}
-                    <div className="h-[45%] min-h-[220px]">
-                        {isTouch ? (
-                            <ScrollStack baseScale={0.92} itemStackDistance={20}>
-                                {FEATURED.map((item, i) => (
-                                    <ScrollStackItem key={i}>
-                                        <FeaturedCard item={item} />
-                                    </ScrollStackItem>
-                                ))}
-                            </ScrollStack>
-                        ) : (
-                            <div className="grid md:grid-cols-3 gap-4 h-full overflow-y-auto pr-2">
-                                {FEATURED.map((item, i) => (
-                                    <FeaturedCard key={i} item={item} />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* HEADING */}
-                    <div className="flex-shrink-0">
-                        <h3 className="text-[11px] uppercase tracking-widest text-zinc-500">
-                            Additional Internships
-                        </h3>
-                    </div>
-
-                    {/* ALL */}
-                    <div className="flex-1 min-h-[250px]">
-                        {isTouch ? (
-                            <ScrollStack itemScale={0.03} itemStackDistance={15}>
-                                {ALL.map((item, i) => (
-                                    <ScrollStackItem key={i}>
-                                        <MiniCard item={item} />
-                                    </ScrollStackItem>
-                                ))}
-                            </ScrollStack>
-                        ) : (
-                            <div className="grid md:grid-cols-2 gap-4 h-full overflow-y-auto pr-2">
-                                {ALL.map((item, i) => (
-                                    <MiniCard key={i} item={item} />
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    );
-}
-
-/* -------------------- CARDS -------------------- */
-
-function FeaturedCard({ item }) {
-    return (
-        <div className="bg-white border border-zinc-200 p-5 rounded-xl shadow-sm">
+        <div className="bg-white border border-zinc-200 p-5 rounded-xl shadow-sm w-full">
             <Logo src={item.logo} alt={item.firm} initials={item.initials} />
-
             <span className="text-[10px] text-[#D2042D] uppercase font-semibold mt-3 block">
                 {item.tag}
             </span>
-
             <h3 className="text-sm font-bold mt-1">{item.firm}</h3>
-
             <p className="text-[10px] text-zinc-500 mb-2">
                 {item.role} • {item.duration}
             </p>
-
-            <p className="text-xs text-zinc-600 leading-relaxed">
-                {item.desc}
-            </p>
+            <p className="text-xs text-zinc-600 leading-relaxed">{item.desc}</p>
         </div>
     );
 }
 
-function MiniCard({ item }) {
+function MiniCard({ item }: { item: typeof ALL[number] }) {
     return (
-        <div className="flex gap-3 items-start bg-white border border-zinc-200 p-4 rounded-lg">
+        <div className="flex gap-3 items-start bg-white border border-zinc-200 p-4 rounded-lg w-full">
             <Logo src={item.logo} alt={item.firm} initials={item.initials} />
-
             <div>
                 <h4 className="text-xs font-semibold">{item.firm}</h4>
-                <p className="text-[10px] text-zinc-600 mt-1 leading-relaxed">
-                    {item.desc}
+                <p className="text-[10px] text-zinc-600 mt-1 leading-relaxed">{item.desc}</p>
+            </div>
+        </div>
+    );
+}
+
+/* ────────────────── SECTION HEADING CARD (mobile) ────────────────── */
+
+function SectionHeadingCard({
+    label,
+    title,
+    accent,
+    subtitle,
+}: {
+    label?: string;
+    title: string;
+    accent: string;
+    subtitle?: string;
+}) {
+    return (
+        <div className="bg-white w-full py-3 px-1">
+            {label && (
+                <p className="text-[10px] text-zinc-400 uppercase tracking-widest mb-1">
+                    {label}
+                </p>
+            )}
+            <h2 className="text-2xl font-bold leading-tight">
+                {title}{" "}
+                <span className="text-[#D2042D]">{accent}</span>
+            </h2>
+            {subtitle && (
+                <p className="text-zinc-500 text-xs mt-1 max-w-xs">{subtitle}</p>
+            )}
+        </div>
+    );
+}
+
+/* ─────────────────────────── MAIN ─────────────────────────── */
+
+export default function Experience() {
+    const [isTouch, setIsTouch] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+        setMounted(true);
+    }, []);
+
+    /* ── DESKTOP ────────────────────────────────────────────── */
+    const desktopView = (
+        <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
+
+            {/* Page header */}
+            <div className="mb-4 flex-shrink-0">
+                <h2 className="text-3xl md:text-5xl font-bold">
+                    Professional <span className="text-[#D2042D]">Experience</span>
+                </h2>
+                <p className="text-zinc-500 text-xs md:text-sm max-w-md mt-2">
+                    Practical exposure across litigation, corporate advisory, and regulatory frameworks.
                 </p>
             </div>
+
+            <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-y-auto pr-2">
+
+                {/* Featured section */}
+                <div>
+                    <h3 className="text-[11px] uppercase tracking-widest text-zinc-500 mb-3">
+                        Featured Experience
+                    </h3>
+                    <div className="grid md:grid-cols-3 gap-4">
+                        {FEATURED.map((item, i) => (
+                            <FeaturedCard key={i} item={item} />
+                        ))}
+                    </div>
+                </div>
+
+                {/* Additional section */}
+                <div>
+                    <h3 className="text-[11px] uppercase tracking-widest text-zinc-500 mb-3">
+                        Additional Internships
+                    </h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {ALL.map((item, i) => (
+                            <MiniCard key={i} item={item} />
+                        ))}
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
+
+    /* ── MOBILE — single ScrollStack, headings are stack items too ── */
+    //
+    // Scroll sequence:
+    //   [0] Page header  → stacks & locks at very top
+    //   [1] "Featured Experience" heading → stacks just below
+    //   [2] MLS card
+    //   [3] Fox & Mandal card
+    //   [4] Muralidhar Unnam card
+    //   [5] "Additional Internships" heading → stacks below featured heading
+    //   [6-15] 10 mini cards
+    //
+    const mobileView = (
+        <div className="w-full h-screen">
+            <ScrollStack
+                itemDistance={80}
+                itemScale={0.03}
+                itemStackDistance={14}
+                stackPosition="18%"
+                scaleEndPosition="8%"
+                baseScale={0.88}
+            >
+                {/* ── [0] Page header ── */}
+                <ScrollStackItem itemClassName="experience-heading-card">
+                    <div className="bg-white w-full pt-2 pb-3 px-1">
+                        <h2 className="text-2xl font-bold leading-tight">
+                            Professional{" "}
+                            <span className="text-[#D2042D]">Experience</span>
+                        </h2>
+                        <p className="text-zinc-500 text-xs mt-1 max-w-xs">
+                            Practical exposure across litigation, corporate advisory, and regulatory frameworks.
+                        </p>
+                    </div>
+                </ScrollStackItem>
+
+                {/* ── [1] Featured heading ── */}
+                <ScrollStackItem itemClassName="experience-heading-card">
+                    <SectionHeadingCard
+                        label="Section 01"
+                        title="Featured"
+                        accent="Experience"
+                    />
+                </ScrollStackItem>
+
+                {/* ── [2-4] Featured cards ── */}
+                {FEATURED.map((item, i) => (
+                    <ScrollStackItem key={`featured-${i}`}>
+                        <FeaturedCard item={item} />
+                    </ScrollStackItem>
+                ))}
+
+                {/* ── [5] Additional heading ── */}
+                <ScrollStackItem itemClassName="experience-heading-card">
+                    <SectionHeadingCard
+                        label="Section 02"
+                        title="Additional"
+                        accent="Internships"
+                        subtitle="10 internships across litigation, IP, and corporate law."
+                    />
+                </ScrollStackItem>
+
+                {/* ── [6-15] Mini cards ── */}
+                {ALL.map((item, i) => (
+                    <ScrollStackItem key={`all-${i}`}>
+                        <MiniCard item={item} />
+                    </ScrollStackItem>
+                ))}
+            </ScrollStack>
+        </div>
+    );
+
+    // Avoid hydration mismatch — render nothing until client detects touch
+    if (!mounted) {
+        return (
+            <div className="h-full w-full flex items-center justify-center bg-white">
+                <div className="w-full max-w-6xl h-[90vh] flex flex-col px-4 md:px-8">
+                    <div className="mb-4">
+                        <h2 className="text-3xl md:text-5xl font-bold">
+                            Professional <span className="text-[#D2042D]">Experience</span>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+            {isTouch ? mobileView : desktopView}
         </div>
     );
 }

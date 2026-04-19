@@ -1,6 +1,5 @@
 import Hero from "@/components/Hero";
 import Summary from "@/components/Summary";
-import Expertise from "@/components/Expertise";
 import Experience from "@/components/Experience";
 import Publications from "@/components/Publications";
 import Conferences from "@/components/Conferences";
@@ -26,41 +25,37 @@ export default function Home() {
         <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
       </div>
 
-      {/* SLIDES */}
+      {/* SLIDES — each section has an id matching the Dock hrefs */}
 
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="home" className="snap-start h-screen flex items-center justify-center">
         <Hero />
       </section>
 
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="summary" className="snap-start h-screen flex items-center justify-center">
         <Summary />
       </section>
 
-      <section className="snap-start h-screen flex items-center justify-center">
-        <Expertise />
-      </section>
-
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="experience" className="snap-start h-screen flex items-center justify-center">
         <Experience />
       </section>
 
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="publications" className="snap-start h-screen flex items-center justify-center">
         <Publications />
       </section>
 
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="conferences" className="snap-start h-screen flex items-center justify-center">
         <Conferences />
       </section>
 
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="credentials" className="snap-start h-screen flex items-center justify-center">
         <Credentials />
       </section>
 
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="education" className="snap-start h-screen flex items-center justify-center">
         <Education />
       </section>
 
-      <section className="snap-start h-screen flex items-center justify-center">
+      <section id="contact" className="snap-start h-screen flex items-center justify-center">
         <Contact />
       </section>
 

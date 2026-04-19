@@ -6,13 +6,17 @@
     overflow-x: visible;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
+
+    /* Prevent the browser from hijacking touch on mobile */
+    touch-action: pan-y;
 }
 
 .scroll-stack-inner {
-    padding: 15vh 1rem 40rem;
+    padding: 6vh 1rem 40rem;
     min-height: 100%;
 }
 
+/* ── Default card ── */
 .scroll-stack-card {
     transform-origin: top center;
     will-change: transform;
@@ -22,11 +26,21 @@
     height: auto;
     width: 100%;
     margin: 20px 0;
-    padding: 1rem;
+    padding: 0;
+    /* zero — let inner content control padding */
     border-radius: 16px;
 
-    /* Performance */
     transform: translateZ(0);
+    touch-action: pan-y;
+}
+
+/* ── Heading variant — no border-radius, transparent bg, minimal spacing ── */
+.scroll-stack-card.experience-heading-card {
+    background: white;
+    border-radius: 0;
+    margin-bottom: 4px;
+    /* Sits flush against the top when stacked */
+    z-index: 10;
 }
 
 .scroll-stack-end {
