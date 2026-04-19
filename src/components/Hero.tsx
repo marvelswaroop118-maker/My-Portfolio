@@ -5,9 +5,11 @@ import Image from "next/image";
 
 export default function Hero() {
   return (
-    <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
+    // 1. Changed strict `h-full` to `min-h-[100dvh]` to prevent mobile viewport scroll-trapping
+    <div className="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-white text-black">
 
-      <div className="w-full max-w-7xl h-[90vh] flex flex-col justify-center px-5 md:px-10">
+      // 2. Changed strict `h-[90vh]` to `min-h-[90vh]` and added mobile padding `py-20 lg:py-0`
+      <div className="w-full max-w-7xl min-h-[90vh] py-20 lg:py-0 flex flex-col justify-center px-5 md:px-10">
 
         {/* ================= MOBILE ================= */}
         <div className="flex flex-col items-center text-center lg:hidden">
