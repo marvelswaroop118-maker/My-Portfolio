@@ -2,8 +2,6 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import ScrollStack, { ScrollStackItem } from "./ScrollStack";
-import "./ScrollStack.css";
 
 /* ---------------- DATA ---------------- */
 
@@ -87,8 +85,9 @@ function PublicationCard({ article, index }) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }} // Triggers animation as you scroll
             transition={{ duration: 0.35, delay: index * 0.04 }}
-            className="h-48 cursor-pointer"
+            className="h-48 cursor-pointer shrink-0" // shrink-0 is important for flex lists!
             style={{ perspective: "1200px" }}
             onMouseEnter={() => !isTouch && setFlipped(true)}
             onMouseLeave={() => !isTouch && setFlipped(false)}
@@ -161,14 +160,12 @@ function PublicationCard({ article, index }) {
 
 export default function Publications() {
     return (
-        // 1. Swapped h-full to min-h-[100dvh] to prevent the mobile viewport from clipping
-        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black overflow-hidden py-12 lg:py-0">
+        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black py-16 lg:py-0">
 
-            {/* 2. Removed px-4 from this wrapper so the ScrollStack can reach the absolute edges of the phone */}
             <div className="w-full max-w-7xl mx-auto flex flex-col h-[85vh] lg:h-[90vh]">
 
-                {/* HEADER - Padding applied locally here instead */}
-                <div className="mb-4 px-5 md:px-8 shrink-0">
+                {/* HEADER */}
+                <div className="mb-6 px-5 md:px-8 shrink-0">
                     <h2 className="text-3xl md:text-5xl font-bold">
                         Legal <span className="text-[#D2042D]">Scholarship</span>
                     </h2>
@@ -178,7 +175,7 @@ export default function Publications() {
                 </div>
 
                 {/* CONTENT AREA */}
-                <div className="flex-1 w-full relative">
+                <div className="flex-1 w-full relative overflow-hidden">
 
                     {/* DESKTOP GRID */}
                     <div className="hidden md:grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 h-full overflow-y-auto px-8 pb-8">
@@ -187,24 +184,11 @@ export default function Publications() {
                         ))}
                     </div>
 
-                    {/* MOBILE STACK (Now 100% Edge-to-Edge) */}
-                    <div className="md:hidden absolute inset-0 w-full h-full">
-                        <ScrollStack
-                            itemDistance={70}
-                            itemScale={0.04}
-                            itemStackDistance={18}
-                            stackPosition="15%"
-                            scaleEndPosition="5%"
-                            baseScale={0.92}
-                            /* 3. Padding moved inside the scroll area, creating a massive touch target */
-                            className="w-full h-full px-5 pb-10"
-                        >
-                            {PUBLICATIONS_DATA.map((article, index) => (
-                                <ScrollStackItem key={index}>
-                                    <PublicationCard article={article} index={index} />
-                                </ScrollStackItem>
-                            ))}
-                        </ScrollStack>
+                    {/* MOBILE NATIVE SCROLL LIST (No more ScrollStack!) */}
+                    <div className="md:hidden flex flex-col gap-4 w-full h-full overflow-y-auto px-5 pb-10">
+                        {PUBLICATIONS_DATA.map((article, index) => (
+                            <PublicationCard key={index} article={article} index={index} />
+                        ))}
                     </div>
 
                 </div>

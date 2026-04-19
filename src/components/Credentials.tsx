@@ -1,9 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import ScrollStack, { ScrollStackItem } from "./ScrollStack";
-import "./ScrollStack.css";
 
 /* ---------------- DATA ---------------- */
 
@@ -90,12 +87,6 @@ const ACHIEVEMENTS = [
 /* ---------------- MAIN ---------------- */
 
 export default function Credentials() {
-    const [isTouch, setIsTouch] = useState(false);
-
-    useEffect(() => {
-        setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
-    }, []);
-
     const cards = [
         { title: "Accolades", items: ACCOLADES },
         { title: "Moot Courts", items: MOOTS },
@@ -104,11 +95,11 @@ export default function Credentials() {
     ];
 
     return (
-        <div className="h-full w-full flex items-center justify-center overflow-hidden bg-white text-black">
-            <div className="w-full max-w-7xl h-[90vh] flex flex-col px-4 md:px-8">
+        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black py-16 lg:py-0">
+            <div className="w-full max-w-7xl mx-auto flex flex-col h-[85vh] lg:h-[90vh]">
 
                 {/* HEADER */}
-                <div className="mb-4">
+                <div className="mb-6 px-5 md:px-8 shrink-0">
                     <h2 className="text-3xl md:text-5xl font-bold">
                         Credentials & <span className="text-[#D2042D]">Recognition</span>
                     </h2>
@@ -117,25 +108,24 @@ export default function Credentials() {
                     </p>
                 </div>
 
-                {/* CONTENT */}
-                <div className="flex-1 min-h-0">
-                    {isTouch ? (
-                        <ScrollStack itemScale={0.04} itemStackDistance={18}>
-                            {cards.map((card, i) => (
-                                <ScrollStackItem key={i}>
-                                    <ListCard {...card} />
-                                </ScrollStackItem>
-                            ))}
-                        </ScrollStack>
-                    ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 h-full overflow-y-auto pr-2">
-                            {cards.map((card, i) => (
-                                <ListCard key={i} {...card} />
-                            ))}
-                        </div>
-                    )}
-                </div>
+                {/* CONTENT AREA */}
+                <div className="flex-1 w-full relative overflow-hidden">
 
+                    {/* DESKTOP GRID */}
+                    <div className="hidden md:grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 h-full overflow-y-auto px-8 pb-8">
+                        {cards.map((card, i) => (
+                            <ListCard key={i} {...card} />
+                        ))}
+                    </div>
+
+                    {/* MOBILE NATIVE SCROLL LIST */}
+                    <div className="md:hidden flex flex-col gap-5 w-full h-full overflow-y-auto px-5 pb-10">
+                        {cards.map((card, i) => (
+                            <ListCard key={i} {...card} />
+                        ))}
+                    </div>
+
+                </div>
             </div>
         </div>
     );
@@ -148,9 +138,10 @@ function ListCard({ title, items }) {
         <motion.div
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.35 }}
             className="bg-white border border-zinc-200 p-5 rounded-xl 
-      hover:border-[#D2042D]/40 transition-all duration-300"
+      hover:border-[#D2042D]/40 transition-all duration-300 shrink-0"
         >
             <h3 className="text-[11px] font-bold mb-4 uppercase tracking-widest text-zinc-500">
                 {title}

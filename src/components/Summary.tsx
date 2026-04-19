@@ -2,8 +2,6 @@
 
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import ScrollStack, { ScrollStackItem } from "./ScrollStack";
-import "./ScrollStack.css";
 
 /* -------------------- DATA -------------------- */
 
@@ -96,8 +94,9 @@ function FlipCard({ card, index }) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }} // Smoother animation trigger on mobile scroll
             transition={{ duration: 0.35, delay: index * 0.04 }}
-            className="h-60 cursor-pointer"
+            className="h-60 cursor-pointer shrink-0" // IMPORTANT: Prevents squishing in mobile lists
             style={{ perspective: "1200px" }}
             onMouseEnter={() => !isTouch && setFlipped(true)}
             onMouseLeave={() => !isTouch && setFlipped(false)}
@@ -164,13 +163,11 @@ function FlipCard({ card, index }) {
 
 export default function Summary() {
     return (
-        // 1. Swapped h-full to min-h-[100dvh] to prevent the mobile viewport from clipping
-        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black overflow-hidden py-12 lg:py-0">
+        <div className="relative w-full min-h-[100dvh] flex flex-col justify-center bg-white text-black py-16 lg:py-0">
 
-            {/* 2. Removed px-4 from this wrapper so the ScrollStack can reach the absolute edges of the phone */}
             <div className="w-full max-w-6xl mx-auto flex flex-col h-[85vh] lg:h-[90vh]">
 
-                {/* HEADER - Padding applied locally here instead */}
+                {/* HEADER */}
                 <div className="mb-3 px-5 md:px-8 shrink-0">
                     <h2 className="text-3xl md:text-5xl font-bold">
                         At a <span className="text-[#D2042D]">Glance</span>
@@ -180,46 +177,32 @@ export default function Summary() {
                     </p>
                 </div>
 
-                {/* INTRO - Padding applied locally here instead */}
+                {/* INTRO */}
                 <p className="text-zinc-600 text-sm md:text-base max-w-xl mb-4 px-5 md:px-8 shrink-0">
                     Final-year BBA LL.B (Hons.) student with experience across litigation,
                     corporate law, intellectual property, and technology law.
                 </p>
 
                 {/* CONTENT AREA */}
-                <div className="flex-1 w-full relative">
+                <div className="flex-1 w-full relative overflow-hidden">
 
                     {/* DESKTOP GRID */}
-                    <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 overflow-y-auto h-full px-8 pb-8">
+                    <div className="hidden md:grid grid-cols-2 lg:grid-cols-3 gap-5 h-full overflow-y-auto px-8 pb-8">
                         {FLIP_CARDS.map((card, index) => (
                             <FlipCard key={card.id} card={card} index={index} />
                         ))}
                     </div>
 
-                    {/* MOBILE STACK (Now 100% Edge-to-Edge) */}
-                    <div className="md:hidden absolute inset-0 w-full h-full">
-                        <ScrollStack
-                            itemDistance={70}
-                            itemScale={0.04}
-                            itemStackDistance={18}
-                            stackPosition="20%"
-                            scaleEndPosition="5%"
-                            baseScale={0.92}
-                            blurAmount={1.5}
-                            /* 3. Padding moved inside the scroll area, creating a massive touch target */
-                            className="w-full h-full px-5 pb-10"
-                        >
-                            {FLIP_CARDS.map((card, index) => (
-                                <ScrollStackItem key={card.id}>
-                                    <FlipCard card={card} index={index} />
-                                </ScrollStackItem>
-                            ))}
-                        </ScrollStack>
+                    {/* MOBILE NATIVE SCROLL LIST (No more ScrollStack!) */}
+                    <div className="md:hidden flex flex-col gap-5 w-full h-full overflow-y-auto px-5 pb-10 pt-2">
+                        {FLIP_CARDS.map((card, index) => (
+                            <FlipCard key={card.id} card={card} index={index} />
+                        ))}
                     </div>
 
                 </div>
 
-                {/* FOOTER - Padding applied locally here instead */}
+                {/* FOOTER */}
                 <div className="mt-4 border-t border-zinc-200 pt-3 px-5 md:px-8 shrink-0">
                     <p className="text-zinc-500 text-[9px] uppercase tracking-widest">
                         Swaroop Choudary · Corporate · Litigation · IPR · Technology Law
