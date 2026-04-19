@@ -8,7 +8,6 @@ export default function Hero() {
     // 1. Changed strict `h-full` to `min-h-[100dvh]` to prevent mobile viewport scroll-trapping
     <div className="relative w-full min-h-[100dvh] flex items-center justify-center overflow-hidden bg-white text-black">
 
-      // 2. Changed strict `h-[90vh]` to `min-h-[90vh]` and added mobile padding `py-20 lg:py-0`
       <div className="w-full max-w-7xl min-h-[90vh] py-20 lg:py-0 flex flex-col justify-center px-5 md:px-10">
 
         {/* ================= MOBILE ================= */}

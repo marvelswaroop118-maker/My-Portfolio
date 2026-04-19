@@ -1,11 +1,8 @@
 "use client";
 
-import { useLayoutEffect, useRef, useCallback, useEffect } from "react";
+import { useLayoutEffect, useRef, useCallback } from "react";
 import Lenis from "lenis";
 import "./ScrollStack.css";
-
-/* ── Global instance counter — prevents multiple stacks fighting over body overflow ── */
-let activeScrollStackCount = 0;
 
 /* ─────────────────────────── ITEM ─────────────────────────── */
 
@@ -52,8 +49,6 @@ const ScrollStack = ({
     const animationFrameRef = useRef<number | null>(null);
     const lenisRef = useRef<any>(null);
     const isStackCompleteRef = useRef(false);
-    const touchStartYRef = useRef(0);
-    const touchStartXRef = useRef(0);
 
     /* ─────────── HELPERS ─────────── */
 
@@ -94,6 +89,8 @@ const ScrollStack = ({
         const { scrollTop, containerHeight } = getScrollData();
         const inner = scroller.querySelector(".scroll-stack-inner");
         const totalScrollable = (inner?.scrollHeight ?? 0) - containerHeight;
+
+        // Check if we've reached the bottom of the stack
         const complete = scrollTop >= totalScrollable - 2;
 
         if (complete !== isStackCompleteRef.current) {
@@ -102,7 +99,7 @@ const ScrollStack = ({
         }
 
         return complete;
-    }, [onStackComplete]);
+    }, [onStackComplete, useWindowScroll]);
 
     /* ─────────── TRANSFORMS ─────────── */
 
@@ -146,96 +143,22 @@ const ScrollStack = ({
         baseScale,
         blurAmount,
         checkStackComplete,
+        useWindowScroll
     ]);
 
-    /* ─────────── GLOBAL SCROLL CAPTURE ─────────── */
-
-    useEffect(() => {
-        const scroller = scrollerRef.current;
-        if (!scroller || useWindowScroll) return;
-
-        // Increment before locking — only the first instance sets the lock
-        activeScrollStackCount += 1;
-        document.body.style.overflow = "hidden";
-        document.documentElement.style.overflow = "hidden";
-
-        const handleWheel = (e: WheelEvent) => {
-            const scrollingDown = e.deltaY > 0;
-            const scrollingUp = e.deltaY < 0;
-
-            // Allow page to scroll DOWN only when stack is fully complete
-            if (isStackCompleteRef.current && scrollingDown) return;
-
-            // Allow page to scroll UP only when stack is at the very top
-            if (scroller.scrollTop <= 0 && scrollingUp) return;
-
-            // Everything else: capture and feed into the scroller
-            e.preventDefault();
-            scroller.scrollTop += e.deltaY;
-        };
-
-        const handleTouchStart = (e: TouchEvent) => {
-            touchStartYRef.current = e.touches[0].clientY;
-            touchStartXRef.current = e.touches[0].clientX;
-        };
-
-        const handleTouchMove = (e: TouchEvent) => {
-            const currentY = e.touches[0].clientY;
-            const currentX = e.touches[0].clientX;
-            const deltaY = touchStartYRef.current - currentY;
-            const deltaX = Math.abs(touchStartXRef.current - currentX);
-
-            if (deltaX > Math.abs(deltaY) * 1.5) return; // horizontal swipe — ignore
-
-            const scrollingDown = deltaY > 0;
-            const scrollingUp = deltaY < 0;
-
-            // Allow page to scroll DOWN only when stack is fully complete
-            if (isStackCompleteRef.current && scrollingDown) {
-                touchStartYRef.current = currentY; // FIX: Update ref before returning
-                return;
-            }
-
-            // Allow page to scroll UP only when stack is at the very top
-            if (scroller.scrollTop <= 0 && scrollingUp) {
-                touchStartYRef.current = currentY; // FIX: Update ref before returning
-                return;
-            }
-
-            e.preventDefault();
-            scroller.scrollTop += deltaY;
-            touchStartYRef.current = currentY;
-        };
-
-        window.addEventListener("wheel", handleWheel, { passive: false });
-        window.addEventListener("touchstart", handleTouchStart, { passive: true });
-        window.addEventListener("touchmove", handleTouchMove, { passive: false });
-
-        return () => {
-            window.removeEventListener("wheel", handleWheel);
-            window.removeEventListener("touchstart", handleTouchStart);
-            window.removeEventListener("touchmove", handleTouchMove);
-
-            activeScrollStackCount -= 1;
-            // Only restore when the LAST mounted stack unmounts
-            if (activeScrollStackCount <= 0) {
-                activeScrollStackCount = 0;
-                document.body.style.overflow = "";
-                document.documentElement.style.overflow = "";
-            }
-        };
-    }, [useWindowScroll]);
-
-    /* ─────────── LENIS ─────────── */
+    /* ─────────── LENIS SCROLL INITIALIZATION ─────────── */
 
     const setupLenis = useCallback(() => {
         const scroller = scrollerRef.current!;
 
+        // Let Lenis handle desktop wheel smoothing, but it will automatically
+        // yield to native momentum scrolling on iOS and Android devices.
         const lenis = new Lenis({
-            wrapper: scroller,
-            content: scroller.querySelector(".scroll-stack-inner") as HTMLElement,
+            wrapper: useWindowScroll ? window : scroller,
+            content: useWindowScroll ? document.documentElement : scroller.querySelector(".scroll-stack-inner") as HTMLElement,
             duration: 1.2,
             smoothWheel: true,
+            syncTouch: false, // CRITICAL: Ensures native touch momentum is not hijacked
         });
 
         lenis.on("scroll", updateTransforms);
@@ -247,16 +170,25 @@ const ScrollStack = ({
 
         animationFrameRef.current = requestAnimationFrame(raf);
         lenisRef.current = lenis;
-    }, [updateTransforms]);
+
+        // Fallback for native scrolling events (ensures transforms run even if Lenis pauses)
+        const scrollTarget = useWindowScroll ? window : scroller;
+        scrollTarget.addEventListener("scroll", updateTransforms, { passive: true });
+
+        return () => {
+            scrollTarget.removeEventListener("scroll", updateTransforms);
+        };
+    }, [updateTransforms, useWindowScroll]);
 
     /* ─────────── INIT ─────────── */
 
     useLayoutEffect(() => {
         const scroller = scrollerRef.current;
-        if (!scroller) return;
+        if (!scroller && !useWindowScroll) return;
 
+        const container = useWindowScroll ? document : scroller;
         const cards = Array.from(
-            scroller.querySelectorAll<HTMLElement>(".scroll-stack-card")
+            container!.querySelectorAll<HTMLElement>(".scroll-stack-card")
         );
         cardsRef.current = cards;
 
@@ -268,14 +200,15 @@ const ScrollStack = ({
             card.style.transformOrigin = "top center";
         });
 
-        setupLenis();
+        const cleanupNativeScroll = setupLenis();
         updateTransforms();
 
         return () => {
             if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
             if (lenisRef.current) lenisRef.current.destroy();
+            cleanupNativeScroll();
         };
-    }, [itemDistance, setupLenis, updateTransforms]);
+    }, [itemDistance, setupLenis, updateTransforms, useWindowScroll]);
 
     /* ─────────── RENDER ─────────── */
 
