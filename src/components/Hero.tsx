@@ -87,7 +87,7 @@ export default function Hero() {
           <div className="flex items-center gap-8 sm:gap-10 mt-10 pt-8 border-t border-zinc-200 dark:border-zinc-800/60 w-full justify-center lg:justify-start transition-colors duration-500">
             {[
               { value: "13", label: "Internships" },
-              { value: "22", label: "Publications" },
+              { value: "07", label: "Publications" },
               { value: "11", label: "Conferences" },
             ].map((s) => (
               <div key={s.label} className="text-center lg:text-left group cursor-default">
