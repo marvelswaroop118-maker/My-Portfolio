@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+/* ── TAILWIND V4 DARK MODE OVERRIDE ── */
+/* This tells Tailwind to listen to our next-themes toggle instead of just the OS */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── CUSTOM UTILITIES ── */
+@layer utilities {
+
+  /* Universally hides ugly scrollbars across all browsers while keeping scroll functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari and Opera */
+  }
+}
+
+/* ── THEME CONFIG ── */
+@theme inline {
+  --font-sans: var(--font-inter);
+}
+
+/* ── BASE HTML SETTINGS ── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── MOBILE OPTIMIZATION & LOCKS ── */
+html,
+body {
+  /* Prevent horizontal scroll bleed */
+  overflow-x: hidden;
+
+  /* LUXURY UPGRADE: Prevents the rubber-band bounce effect on iOS/Mac at the top and bottom of the page */
+  overscroll-behavior-y: none;
+}
+
+/* Better mobile touch scrolling */
+* {
+  -webkit-overflow-scrolling: touch;
+}
