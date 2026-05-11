@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
-/* ── TAILWIND V4 DARK MODE OVERRIDE ── */
-/* This tells Tailwind to listen to our next-themes toggle instead of just the OS */
-@custom-variant dark (&:where(.dark, .dark *));
+/* ── TAILWIND V4 THEME CONFIG ── */
+@theme inline {
+  --font-sans: var(--font-inter);
+}
 
 /* ── CUSTOM UTILITIES ── */
 @layer utilities {
@@ -21,33 +22,44 @@
   }
 }
 
-/* ── THEME CONFIG ── */
-@theme inline {
-  --font-sans: var(--font-inter);
-}
-
 /* ── BASE HTML SETTINGS ── */
 html {
   scroll-behavior: smooth;
+  /* Prevent horizontal scroll bleed at the root level */
+  overflow-x: hidden;
 }
 
 body {
   font-family: var(--font-inter), sans-serif;
+
+  /* Forces fonts to render razor-sharp on Mac/iOS displays */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
 
-/* ── MOBILE OPTIMIZATION & LOCKS ── */
-html,
-body {
-  /* Prevent horizontal scroll bleed */
-  overflow-x: hidden;
+  /* Global Fallbacks */
+  background-color: #09090b;
+  color: #ffffff;
 
-  /* LUXURY UPGRADE: Prevents the rubber-band bounce effect on iOS/Mac at the top and bottom of the page */
+  /* LUXURY UPGRADE: Prevents the elastic rubber-band bounce effect on iOS/Mac */
   overscroll-behavior-y: none;
 }
 
-/* Better mobile touch scrolling */
+/* ── ELITE NATIVE-APP UX TWEAKS ── */
 * {
+  /* Enables hardware-accelerated momentum scrolling on iOS */
   -webkit-overflow-scrolling: touch;
+
+  /* Removes the ugly default grey flash when tapping buttons on mobile */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── CUSTOM TEXT SELECTION (Signature Red) ── */
+::selection {
+  background-color: rgba(210, 4, 45, 0.4);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background-color: rgba(210, 4, 45, 0.4);
+  color: #ffffff;
 }

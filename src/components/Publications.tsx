@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useSpring } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
 
 const PUBLICATIONS_DATA = [
   {
@@ -26,7 +26,7 @@ const PUBLICATIONS_DATA = [
     title: "John Austin's Theory of Sovereignty in Modern Legal Systems",
     venue: "Indian Journal for Research in Law and Management",
     category: "Jurisprudence",
-    link: "https://doi-ds.org/doilink/02.2024-45416615/IJRLM/VOL.1,ISSUE.4,JANUARY-2024/A02",
+    link: "https://ijrlm.com/journal/the-influence-of-john-austins-theory-of-sovereignty-on-modern-legal-systems/?asl_highlight=swaroop+choudary&p_asid=1", // UPDATED URL
   },
   {
     title: "The Rise of AI in Corporate Law",
@@ -48,207 +48,194 @@ const PUBLICATIONS_DATA = [
   },
 ];
 
-function PublicationCard({ article, index }: { article: typeof PUBLICATIONS_DATA[number]; index: number }) {
-  const [flipped, setFlipped] = useState(false);
-  const [isTouch, setIsTouch] = useState(false);
-
-  useEffect(() => {
-    setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
-  }, []);
-
-  const hasLink = !!article.link;
-
-  const handleClick = () => {
-    if (isTouch) {
-      if (!flipped) {
-        setFlipped(true);
-      } else if (hasLink) {
-        window.open(article.link, "_blank");
-      } else {
-        setFlipped(false);
-      }
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="h-full w-full cursor-pointer"
-      style={{ perspective: "1000px" }}
-      onMouseEnter={() => !isTouch && setFlipped(true)}
-      onMouseLeave={() => !isTouch && setFlipped(false)}
-      onClick={handleClick}
-    >
-      <motion.div
-        animate={{ rotateY: flipped ? 180 : 0 }}
-        transition={{ type: "spring", stiffness: 130, damping: 15 }}
-        className="relative w-full h-full shadow-sm hover:shadow-lg transition-shadow duration-300 rounded-2xl"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        {/* FRONT */}
-        <div
-          // Adjusted padding (p-3.5) for mobile to give text more room
-          className="absolute inset-0 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3.5 sm:p-5 flex flex-col transition-colors duration-300"
-          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
-        >
-          <div className="flex justify-between items-start mb-2 sm:mb-3">
-            <span className="text-[7.5px] sm:text-[9px] font-black px-1.5 sm:px-2 py-1 rounded bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-[#D2042D] uppercase tracking-widest transition-colors duration-300 line-clamp-1">
-              {article.category}
-            </span>
-            <div className="h-1 w-4 sm:w-6 bg-[#D2042D] rounded-full shrink-0 ml-1.5" />
-          </div>
-
-          <h3 className="text-[11px] sm:text-[15px] font-bold text-zinc-900 dark:text-zinc-50 line-clamp-3 sm:line-clamp-2 tracking-tight leading-snug transition-colors duration-300">
-            {article.title}
-          </h3>
-
-          <div className="mt-auto pt-2 sm:pt-3 border-t border-zinc-100 dark:border-zinc-800 transition-colors duration-300">
-            <p className="text-[9px] sm:text-[10px] font-medium text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-1 sm:line-clamp-2">
-              {article.venue}
-            </p>
-          </div>
-        </div>
-
-        {/* BACK */}
-        <div
-          className="absolute inset-0 bg-gradient-to-br from-[#D2042D] to-[#990011] rounded-2xl p-3.5 sm:p-5 flex flex-col items-center justify-center text-center shadow-inner"
-          style={{
-            backfaceVisibility: "hidden",
-            WebkitBackfaceVisibility: "hidden",
-            transform: "rotateY(180deg)"
-          }}
-        >
-          <h4 className="text-white text-[11px] sm:text-sm font-bold line-clamp-4 leading-snug tracking-wide mb-3 sm:mb-4">
-            {article.title}
-          </h4>
-
-          <div>
-            {hasLink ? (
-              <a
-                href={article.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border border-white/40 bg-white/5 px-4 py-2 rounded-full hover:bg-white/20 transition-colors duration-200"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Read
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 17l9.2-9.2M17 17V7H7" />
-                </svg>
-              </a>
-            ) : (
-              <span className="inline-block text-white/50 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest border border-white/20 bg-black/10 px-4 py-2 rounded-full">
-                Coming Soon
-              </span>
-            )}
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 export default function Publications() {
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [activePage, setActivePage] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
+  // Hook to track the horizontal scroll progress of the carousel
+  const { scrollXProgress } = useScroll({ container: scrollRef });
+  const scaleX = useSpring(scrollXProgress, { stiffness: 100, damping: 20, restDelta: 0.001 });
+
+  // Responsive Check
   useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollLeft = e.currentTarget.scrollLeft;
-    const clientWidth = e.currentTarget.clientWidth;
-    const currentPage = Math.round(scrollLeft / clientWidth);
-    setActivePage(currentPage);
-  };
-
-  const scrollToPage = (pageIndex: number) => {
+  // Smooth Scroll Functions for Buttons
+  const scrollNext = () => {
+    setIsAutoPlaying(false); // Pause auto-play on manual interaction
     if (scrollRef.current) {
-      const clientWidth = scrollRef.current.clientWidth;
-      scrollRef.current.scrollTo({ left: clientWidth * pageIndex, behavior: "smooth" });
+      const scrollAmount = isMobile ? window.innerWidth * 0.85 : 480; // Approximate card width + gap
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
 
-  if (!mounted) return <div className="w-full h-screen bg-zinc-50 dark:bg-zinc-950" />;
+  const scrollPrev = () => {
+    setIsAutoPlaying(false);
+    if (scrollRef.current) {
+      const scrollAmount = isMobile ? window.innerWidth * 0.85 : 480;
+      scrollRef.current.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+    }
+  };
 
-  const chunkSize = isMobile ? 4 : 8;
-  const pages = [];
-  for (let i = 0; i < PUBLICATIONS_DATA.length; i += chunkSize) {
-    pages.push(PUBLICATIONS_DATA.slice(i, i + chunkSize));
-  }
+  // Auto-scroll Engine
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+
+        // If we reach the end of the scroll container, rewind smoothly to the start
+        if (scrollLeft + clientWidth >= scrollWidth - 10) {
+          scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+        } else {
+          const scrollAmount = isMobile ? window.innerWidth * 0.85 : 480;
+          scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+        }
+      }
+    }, 3500); // Scrolls every 3.5 seconds
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, isMobile]);
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+  };
 
   return (
-    <div className="w-full h-[100svh] flex flex-col bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300 overflow-hidden">
-      <div className="w-full h-full max-w-7xl mx-auto flex flex-col px-6 md:px-10 py-6 md:py-10">
+    <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden flex flex-col font-sans">
 
-        {/* HEADER */}
-        <div className="mb-4 sm:mb-6 shrink-0">
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-zinc-900 dark:text-white transition-colors duration-300">
-            Legal <span className="text-[#D2042D]">Scholarship</span>
-          </h2>
-          <div className="flex justify-between items-center mt-1 sm:mt-2">
-            <p className="text-zinc-500 dark:text-zinc-400 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-bold transition-colors duration-300">
-              Published Research & Articles
-            </p>
-            {/* Added Bouncing Animation to the Swipe Indicator */}
-            {isMobile && pages.length > 1 && (
-              <motion.span
-                animate={{ x: [0, 5, 0] }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-                className="text-[#D2042D] text-[9px] font-black uppercase tracking-[0.2em]"
-              >
-                Swipe →
-              </motion.span>
-            )}
-          </div>
-        </div>
+      {/* ── AMBIENT BACKGROUND ── */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
+      <div className="absolute top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-y-1/2 translate-x-1/4" />
 
-        {/* CAROUSEL CONTAINER */}
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          // Added overscroll-x-contain for better physical bounce at the edges on mobile
-          className="flex-1 min-h-0 flex w-full overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2 overscroll-x-contain touch-pan-x"
+      {/* ── MAIN LAYOUT WRAPPER ── */}
+      <div className="relative z-10 w-full max-w-[90rem] mx-auto flex flex-col h-full pt-[15svh] lg:pt-[14svh] pb-[4svh] lg:pb-[8svh] justify-between">
+
+        {/* ── HEADER ── */}
+        <motion.div
+          variants={staggerContainer} initial="hidden" animate="show"
+          className="w-full flex flex-col lg:flex-row items-center lg:items-end justify-between mb-6 lg:mb-10 px-5 md:px-12 shrink-0 gap-4"
         >
-          {pages.map((pageItems, pageIndex) => (
-            <div
-              key={pageIndex}
-              className="min-w-full w-full h-full snap-center shrink-0"
+          {/* Title Area */}
+          <div className="text-center lg:text-left flex flex-col items-center lg:items-start">
+            <motion.div variants={fadeUp} className="mb-2 lg:mb-4 flex items-center justify-center lg:justify-start gap-2 lg:gap-3 w-full">
+              <span className="w-6 lg:w-8 h-[2px] bg-[#D2042D]"></span>
+              <p className="text-[9px] lg:text-[10px] text-zinc-400 uppercase tracking-[0.3em] font-bold">Research & Articles</p>
+            </motion.div>
+
+            <motion.h2 variants={fadeUp} className="text-[10vw] sm:text-5xl lg:text-[4.5rem] font-black leading-[0.95] tracking-tight uppercase">
+              <span className="text-white block lg:inline">Legal</span>
+              <span className="text-transparent [-webkit-text-stroke:1px_#D2042D] lg:[-webkit-text-stroke:1.5px_#D2042D] block lg:inline lg:ml-4">Scholarship</span>
+            </motion.h2>
+          </div>
+
+          {/* Interactive Navigation Buttons */}
+          <motion.div variants={fadeUp} className="flex items-center gap-3">
+            <button
+              onClick={scrollPrev}
+              className="w-10 h-10 lg:w-12 lg:h-12 rounded-full border border-zinc-800 bg-[#0c0c0e] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#D2042D] hover:border-[#D2042D] transition-all duration-300 shadow-md group"
             >
-              <div className="w-full h-full grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-3 sm:gap-5">
-                {pageItems.map((article, index) => (
-                  <PublicationCard key={index} article={article} index={index} />
-                ))}
-              </div>
-            </div>
-          ))}
+              <svg className="w-5 h-5 group-active:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"></path></svg>
+            </button>
+            <button
+              onClick={scrollNext}
+              className="w-10 h-10 lg:w-12 lg:h-12 rounded-full border border-zinc-800 bg-[#0c0c0e] flex items-center justify-center text-zinc-400 hover:text-white hover:bg-[#D2042D] hover:border-[#D2042D] transition-all duration-300 shadow-md group"
+            >
+              <svg className="w-5 h-5 group-active:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"></path></svg>
+            </button>
+          </motion.div>
+        </motion.div>
+
+        {/* ── HORIZONTAL CAROUSEL ── */}
+        <div
+          className="flex-1 min-h-0 w-full relative"
+          onMouseEnter={() => setIsAutoPlaying(false)}
+          onMouseLeave={() => setIsAutoPlaying(true)}
+          onTouchStart={() => setIsAutoPlaying(false)}
+        >
+
+          {/* Left/Right Edge Gradient Fades for desktop immersion */}
+          <div className="hidden lg:block absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-[#09090b] to-transparent z-20 pointer-events-none" />
+          <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-24 bg-gradient-to-l from-[#09090b] to-transparent z-20 pointer-events-none" />
+
+          <div
+            ref={scrollRef}
+            className="w-full h-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide overscroll-x-contain items-center px-5 md:px-12 gap-5 lg:gap-8 pb-4"
+          >
+            {PUBLICATIONS_DATA.map((article, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9, x: 50 }}
+                animate={{ opacity: 1, scale: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="relative snap-center shrink-0 w-[85vw] sm:w-[350px] lg:w-[450px] h-[300px] lg:h-[350px] bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-6 lg:p-8 shadow-xl flex flex-col justify-between group overflow-hidden"
+              >
+                {/* Hover Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-br from-[#D2042D]/0 via-[#D2042D]/0 to-[#D2042D]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+                {/* Card Top: Category */}
+                <div className="flex justify-between items-start relative z-10">
+                  <span className="bg-[#D2042D]/10 border border-[#D2042D]/20 text-[#D2042D] text-[9px] lg:text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">
+                    {article.category}
+                  </span>
+                  {/* Subtle index number watermark */}
+                  <span className="text-zinc-800 font-black text-3xl select-none">
+                    0{i + 1}
+                  </span>
+                </div>
+
+                {/* Card Middle: Title */}
+                <div className="relative z-10 flex-1 flex flex-col justify-center my-4">
+                  <h3 className="text-lg lg:text-2xl font-black text-white leading-snug tracking-tight line-clamp-4 group-hover:text-zinc-200 transition-colors">
+                    {article.title}
+                  </h3>
+                </div>
+
+                {/* Card Bottom: Venue & Link */}
+                <div className="relative z-10 border-t border-zinc-800/50 pt-4 flex flex-col gap-4">
+                  <p className="text-[10px] lg:text-xs font-bold text-zinc-500 leading-relaxed uppercase tracking-wider line-clamp-1">
+                    {article.venue}
+                  </p>
+
+                  <a
+                    href={article.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-between w-full text-white text-[10px] lg:text-[11px] font-black uppercase tracking-[0.2em] py-3 px-4 rounded-xl border border-zinc-700 group-hover:bg-[#D2042D] group-hover:border-[#D2042D] transition-all duration-300"
+                  >
+                    Read Paper
+                    <svg className="w-4 h-4 transform group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M7 17l9.2-9.2M17 17V7H7"></path></svg>
+                  </a>
+                </div>
+              </motion.div>
+            ))}
+
+            {/* Empty spacer block to ensure the last card can scroll fully into the center on mobile */}
+            <div className="shrink-0 w-4 lg:w-12" />
+          </div>
         </div>
 
-        {/* PAGINATION DOTS */}
-        {pages.length > 1 && (
-          <div className="shrink-0 flex justify-center items-center gap-2 pt-3 sm:pt-4">
-            {pages.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => scrollToPage(i)}
-                className={`transition-all duration-300 rounded-full ${activePage === i
-                    ? "w-6 h-1.5 bg-[#D2042D]"
-                    : "w-1.5 h-1.5 bg-zinc-300 dark:bg-zinc-800"
-                  }`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
+        {/* ── SCROLL PROGRESS BAR ── */}
+        <div className="w-full px-5 md:px-12 mt-2 lg:mt-4 shrink-0">
+          <div className="w-full max-w-[200px] mx-auto h-[2px] bg-zinc-800/50 rounded-full overflow-hidden">
+            <motion.div
+              style={{ scaleX, transformOrigin: "0%" }}
+              className="h-full bg-[#D2042D] w-full"
+            />
           </div>
-        )}
+        </div>
 
       </div>
     </div>

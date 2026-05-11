@@ -1,312 +1,222 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
-const FLIP_CARDS = [
-  {
-    id: "education",
-    targetId: "education",
-    frontLabel: "Academic",
-    frontTitle: "Foundation",
-    frontStat: "7.99",
-    frontStatLabel: "CGPA",
-    backTitle: "Education & Certs",
-    backItems: [
-      { title: "BBA LL.B (Hons.)", sub: "VIT-AP University", note: "2021–2026" },
-      { title: "Diploma in Tech Law", sub: "LawSikho", note: "A Grade" },
-      { title: "NTSE Law", sub: "National Talent Search", note: "6th Rank" },
-    ],
-  },
+// Strictly using your actual achievements from the flip cards & education data
+const PILLARS = [
   {
     id: "experience",
-    targetId: "experience",
-    frontLabel: "Experience",
-    frontTitle: "Legal Exposure",
-    frontStat: "13",
-    frontStatLabel: "Internships",
-    backTitle: "Key Work",
-    backItems: [
-      { title: "MLS & Co.", sub: "39 Weeks", note: "Litigation & Corp." },
-      { title: "Ragini Singh", sub: "26 Weeks", note: "SEBI & SCRA" },
-      { title: "Fox & Mandal", sub: "4 Weeks", note: "Contracts" },
-    ],
+    title: "Litigation & Corporate",
+    subtitle: "Extensive exposure across 13+ internships.",
+    details: "Over 69 weeks of practical legal exposure at top tier firms including MLS & Co. and Fox & Mandal. Drafted commercial contracts, navigated SEBI & SCRA regulations, and assisted in high-stakes litigation.",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+    ),
+    stat: "13",
+    statLabel: "Internships",
   },
   {
-    id: "research",
-    targetId: "publications",
-    frontLabel: "Research",
-    frontTitle: "Publications",
-    frontStat: "22",
-    frontStatLabel: "Papers & Presentations",
-    backTitle: "Focus Areas",
-    backItems: [
-      { title: "AI Governance", sub: "Int. Conferences", note: "Primary" },
-      { title: "Corporate & AI", sub: "NMIMS & DSNLU", note: "Published" },
-      { title: "Privacy Law", sub: "Digital Age", note: "Core" },
-    ],
+    id: "publications",
+    title: "Research & Scholarship",
+    subtitle: "22+ Papers and Conference Presentations.",
+    details: "Published extensively on AI Governance, Privacy, and Corporate Law. Showcased research at international conferences and premier institutions like NMIMS and DSNLU, focusing on modern tech governance.",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+    ),
+    stat: "22+",
+    statLabel: "Papers & Talks",
   },
   {
-    id: "moots",
-    targetId: "credentials",
-    frontLabel: "Advocacy",
-    frontTitle: "Moot Courts",
-    frontStat: "3",
-    frontStatLabel: "Major Appearances",
-    backTitle: "Competitions",
-    backItems: [
-      { title: "Verdictus Moot", sub: "Navrachna Univ.", note: "MTP Act" },
-      { title: "NLU Odisha", sub: "Public Health Law", note: "Speaker" },
-      { title: "KIIT National", sub: "9th Edition", note: "Company Law" },
-    ],
+    id: "education",
+    title: "Tech Law & Academics",
+    subtitle: "BBA LL.B (Hons.) & Tech Law Diploma.",
+    details: "Secured 6th Rank in NTSE Law. Combining an 8.19 CGPA in core legal studies with an A-Grade Diploma in Tech Law from LawSikho to bridge the gap between code and compliance.",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="4" width="16" height="16" rx="2" ry="2" /><rect x="9" y="9" width="6" height="6" /><line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" /><line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" /><line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" /><line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" /></svg>
+    ),
+    stat: "6th",
+    statLabel: "NTSE Law Rank",
   },
   {
-    id: "leadership",
-    targetId: "credentials",
-    frontLabel: "Leadership",
-    frontTitle: "Responsibility",
-    frontStat: "3+",
-    frontStatLabel: "Major Roles",
-    backTitle: "Positions",
-    backItems: [
-      { title: "National Conference", sub: "VIT-AP 2024", note: "Organizer" },
-      { title: "Intra Moot Court", sub: "VIT-AP 2024", note: "Organizer" },
-      { title: "VSL Moot Mentor", sub: "Bench Memorials", note: "Mentor" },
-    ],
-  },
-  {
-    id: "focus",
-    targetId: "conferences",
-    frontLabel: "Focus",
-    frontTitle: "Specialisation",
-    frontStat: "5+",
-    frontStatLabel: "Core Domains",
-    backTitle: "Expertise",
-    backItems: [
-      { title: "Technology Law", sub: "AI & Fintech", note: "Primary" },
-      { title: "Corporate Law", sub: "Mergers & Contracts", note: "Core" },
-      { title: "Litigation", sub: "Civil & Criminal", note: "Practical" },
-    ],
+    id: "credentials",
+    title: "Advocacy & Leadership",
+    subtitle: "Moot Court Speaker & National Organizer.",
+    details: "Represented at NLU Odisha and KIIT National Moot Courts. Demonstrated leadership by organizing the VIT-AP National Conference 2024 and mentoring junior advocates.",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7" /><polyline points="8 14 7 22 12 19 17 22 16 14" /></svg>
+    ),
+    stat: "3+",
+    statLabel: "Major Moots",
   },
 ];
 
-function SummaryCard({ card, index }: { card: typeof FLIP_CARDS[number]; index: number }) {
-  const [flipped, setFlipped] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.3, delay: (index % 6) * 0.05 }}
-      className="h-full w-full cursor-pointer group relative z-10 hover:z-20"
-      style={{ perspective: "1500px" }}
-      onHoverStart={() => setFlipped(true)}
-      onHoverEnd={() => setFlipped(false)}
-      onTap={() => setFlipped(!flipped)}
-    >
-      <motion.div
-        animate={{ rotateY: flipped ? 180 : 0 }}
-        // Lightning-fast 0.25s duration for an instant, non-sticky flip
-        transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="relative w-full h-full shadow-sm group-hover:shadow-xl transition-all duration-300 rounded-2xl md:group-hover:-translate-y-1"
-        style={{ transformStyle: "preserve-3d" }}
-      >
-        {/* FRONT */}
-        <div
-          className="absolute inset-0 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 flex flex-col justify-between transition-colors duration-300 md:group-hover:border-[#D2042D]/40 dark:md:group-hover:border-red-900/60"
-          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden" }}
-        >
-          <div className="pointer-events-none">
-            <span className="text-[9px] sm:text-[10px] text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.2em] font-bold">
-              {card.frontLabel}
-            </span>
-            <h3 className="text-base sm:text-lg font-black mt-1 text-zinc-900 dark:text-white tracking-tight">
-              {card.frontTitle}
-            </h3>
-          </div>
-          <div className="pointer-events-none">
-            <p className="text-4xl sm:text-5xl font-black text-[#D2042D] leading-none tracking-tighter">
-              {card.frontStat}
-            </p>
-            <p className="text-[9px] sm:text-[10px] text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mt-1.5 font-medium">
-              {card.frontStatLabel}
-            </p>
-          </div>
-        </div>
-
-        {/* BACK */}
-        <div
-          className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#D2042D] to-[#990011] p-4 sm:p-5 flex flex-col shadow-inner"
-          style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-        >
-          <h4 className="text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-white/70 font-bold mb-3 border-b border-white/20 pb-2">
-            {card.backTitle}
-          </h4>
-
-          <ul className="flex flex-col gap-2 sm:gap-2.5 flex-1 justify-center min-h-0 overflow-hidden">
-            {card.backItems.map((item, i) => (
-              <li key={i} className="border-l-[3px] border-white/40 pl-2.5">
-                <p className="text-[11px] sm:text-[13px] font-bold text-white leading-tight tracking-wide line-clamp-1">
-                  {item.title}
-                </p>
-                <div className="flex items-center justify-between mt-0.5">
-                  <p className="text-[9px] sm:text-[11px] text-white/80 font-medium line-clamp-1">{item.sub}</p>
-                  <span className="text-[7px] sm:text-[8px] bg-white/20 px-1.5 py-0.5 rounded text-white uppercase tracking-widest shrink-0 ml-1">
-                    {item.note}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
-
-          {/* THE NAVIGATE BUTTON */}
-          <div className="mt-3 pt-3 border-t border-white/20 shrink-0">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                const element = document.getElementById(card.targetId);
-                if (element) {
-                  element.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-              className="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/25 active:scale-95 text-white text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-bold py-2 sm:py-2.5 rounded-xl transition-all duration-300"
-            >
-              Navigate
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 export default function Summary() {
-  const [mounted, setMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [activePage, setActivePage] = useState(0);
+  const [active, setActive] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-
+  // Auto-scroll logic for the Accordion
   useEffect(() => {
-    setMounted(true);
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+    if (!isAutoPlaying) return;
+    const interval = setInterval(() => {
+      setActive((prev) => (prev + 1) % PILLARS.length);
+    }, 4500);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    if (scrollRef.current) {
-      setStartX(e.pageX - scrollRef.current.offsetLeft);
-      setScrollLeft(scrollRef.current.scrollLeft);
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+  };
+
+  const fadeUp = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+  };
+
+  const navigateToSection = (targetId: string) => {
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
     }
   };
-
-  const handleMouseLeave = () => setIsDragging(false);
-  const handleMouseUp = () => setIsDragging(false);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 2;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-  };
-
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollPos = e.currentTarget.scrollLeft;
-    const width = e.currentTarget.clientWidth;
-    setActivePage(Math.round(scrollPos / width));
-  };
-
-  const scrollToPage = (pageIndex: number) => {
-    if (scrollRef.current) {
-      const clientWidth = scrollRef.current.clientWidth;
-      scrollRef.current.scrollTo({ left: clientWidth * pageIndex, behavior: "smooth" });
-    }
-  };
-
-  if (!mounted) return <div className="w-full h-screen bg-zinc-50 dark:bg-zinc-950" />;
-
-  const chunkSize = isMobile ? 2 : 6;
-  const pages = [];
-  for (let i = 0; i < FLIP_CARDS.length; i += chunkSize) {
-    pages.push(FLIP_CARDS.slice(i, i + chunkSize));
-  }
 
   return (
-    <div className="w-full h-[100svh] flex flex-col bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300 overflow-hidden">
-      <div className="w-full h-full max-w-7xl mx-auto flex flex-col px-6 md:px-10 py-6 md:py-8">
+    <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden flex flex-col font-sans">
 
-        <div className="mb-5 md:mb-8 shrink-0">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3">
-            <div>
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-zinc-900 dark:text-white">
-                At a <span className="text-[#D2042D]">Glance</span>
-              </h2>
-              <p className="text-zinc-600 dark:text-zinc-400 text-[11px] sm:text-sm leading-relaxed max-w-2xl mt-2 sm:mt-3 font-medium">
-                Final-year BBA LL.B (Hons.) student with extensive experience across litigation,
-                corporate law, intellectual property, and AI governance.
-              </p>
-            </div>
+      {/* ── AMBIENT BACKGROUND ── */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
+      <div className="absolute top-1/2 left-0 w-[300px] lg:w-[800px] h-[300px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0 -translate-y-1/2 -translate-x-1/4" />
 
-            {isMobile && pages.length > 1 && (
-              <motion.div
-                onClick={() => scrollToPage(activePage + 1 < pages.length ? activePage + 1 : 0)}
-                animate={{ x: [0, 8, 0] }}
-                transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-                className="flex items-center gap-2 cursor-pointer bg-[#D2042D]/10 dark:bg-[#D2042D]/20 px-4 py-2 rounded-full self-start"
-              >
-                <span className="text-[#D2042D] text-[10px] font-black uppercase tracking-[0.2em]">
-                  Swipe
-                </span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D2042D" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 12h14M12 5l7 7-7 7" />
-                </svg>
-              </motion.div>
-            )}
-          </div>
-        </div>
+      {/* ── MAIN LAYOUT WRAPPER ── */}
+      {/* Optimized padding for strict 100svh fit */}
+      <div className="relative z-10 w-full max-w-[90rem] mx-auto flex flex-col lg:flex-row h-full pt-[12svh] lg:pt-[14svh] pb-[3svh] lg:pb-[8svh] px-5 md:px-12 gap-4 lg:gap-20">
 
-        <div
-          ref={scrollRef}
-          onScroll={handleScroll}
-          onMouseDown={handleMouseDown}
-          onMouseLeave={handleMouseLeave}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
-          className={`flex-1 min-h-0 flex w-full overflow-x-auto scrollbar-hide pb-2 overscroll-x-contain touch-pan-x ${isDragging ? 'snap-none cursor-grabbing' : 'snap-x snap-mandatory cursor-grab'}`}
+        {/* ── LEFT COLUMN: THE MANIFESTO ── */}
+        <motion.div
+          variants={staggerContainer} initial="hidden" animate="show"
+          className="flex-none lg:flex-1 flex flex-col justify-center w-full lg:max-w-xl"
         >
-          {pages.map((pageItems, pageIndex) => (
-            <div key={pageIndex} className="min-w-full w-full h-full snap-center shrink-0">
-              <div className="w-full h-full grid grid-cols-1 md:grid-cols-3 grid-rows-2 gap-4 sm:gap-6">
-                {pageItems.map((card, index) => (
-                  <SummaryCard key={card.id} card={card} index={index + (pageIndex * chunkSize)} />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+          <motion.div variants={fadeUp} className="mb-2 lg:mb-4 flex items-center justify-center lg:justify-start gap-2 lg:gap-3 w-full">
+            <span className="w-6 lg:w-8 h-[2px] bg-[#D2042D]"></span>
+            <p className="text-[9px] lg:text-[10px] text-zinc-400 uppercase tracking-[0.3em] font-bold">At a Glance</p>
+          </motion.div>
 
-        {pages.length > 1 && (
-          <div className="shrink-0 flex justify-center gap-2.5 mt-5">
-            {pages.map((_, i) => (
+          <motion.h2 variants={fadeUp} className="text-[11vw] sm:text-5xl lg:text-[5rem] text-center lg:text-left font-black leading-[0.9] tracking-tight uppercase mb-2 lg:mb-8">
+            <span className="text-white block mb-1 lg:mb-2">Modern</span>
+            <span className="text-transparent [-webkit-text-stroke:1px_#D2042D] lg:[-webkit-text-stroke:1.5px_#D2042D] block">Advocacy</span>
+          </motion.h2>
+
+          {/* HIDDEN ON MOBILE: This frees up massive vertical space so the accordion fits flawlessly */}
+          <motion.p variants={fadeUp} className="hidden md:block text-zinc-400 text-sm lg:text-base leading-relaxed text-left font-medium max-w-lg mx-auto lg:mx-0 mb-6 lg:mb-10">
+            A litigation-trained, research-driven legal professional bridging the gap between traditional corporate practice and the specialized frontiers of AI governance, technology law, and regulatory compliance.
+          </motion.p>
+
+          <motion.div variants={fadeUp} className="hidden lg:flex items-center gap-6">
+            <div className="w-14 h-14 rounded-full bg-[#0c0c0e] border border-zinc-800 flex items-center justify-center">
+              <span className="text-white font-serif italic text-2xl">SC</span>
+            </div>
+            <div>
+              <p className="text-white font-bold tracking-wider uppercase text-sm">Swaroop Choudary</p>
+              <p className="text-zinc-500 text-[10px] uppercase tracking-[0.2em] font-bold mt-1">BBA LL.B (Hons.)</p>
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* ── RIGHT COLUMN: THE HIGH-PERFORMANCE ACCORDION ── */}
+        <div
+          className="flex-1 w-full h-full flex flex-col justify-center gap-2 lg:gap-4 min-h-0"
+          onMouseEnter={() => setIsAutoPlaying(false)}
+          onMouseLeave={() => setIsAutoPlaying(true)}
+          onTouchStart={() => setIsAutoPlaying(false)}
+        >
+          {PILLARS.map((pillar, index) => {
+            const isActive = active === index;
+
+            return (
               <div
-                key={i}
-                className={`transition-all duration-500 rounded-full ${activePage === i ? "w-8 h-1.5 bg-[#D2042D]" : "w-1.5 h-1.5 bg-zinc-300 dark:bg-zinc-800"}`}
-              />
-            ))}
-          </div>
-        )}
+                key={pillar.id}
+                onClick={() => {
+                  setActive(index);
+                  setIsAutoPlaying(false);
+                }}
+                className={`w-full overflow-hidden rounded-2xl lg:rounded-[2rem] cursor-pointer border transition-colors duration-300 ${isActive
+                    ? "bg-[#0c0c0e] border-zinc-700 shadow-xl"
+                    : "bg-[#09090b] border-zinc-800/60 hover:bg-[#0c0c0e]"
+                  }`}
+              >
+                {/* Tighter padding on mobile */}
+                <div className="p-3.5 sm:p-5 lg:p-6 flex flex-col">
+
+                  {/* HEADER (Always Visible) */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3 lg:gap-5">
+                      {/* Smaller icons on mobile */}
+                      <div className={`w-8 h-8 lg:w-12 lg:h-12 rounded-full flex items-center justify-center transition-colors duration-300 shrink-0 ${isActive ? "bg-[#D2042D] text-white shadow-[0_0_15px_rgba(210,4,45,0.3)]" : "bg-zinc-900 text-zinc-500"}`}>
+                        <div className="w-4 h-4 lg:w-6 lg:h-6">
+                          {pillar.icon}
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className={`text-[13px] sm:text-base lg:text-xl font-black uppercase tracking-wider transition-colors duration-300 ${isActive ? "text-white" : "text-zinc-400"}`}>
+                          {pillar.title}
+                        </h3>
+                        {/* Subtitle hidden on mobile to ensure zero overlap */}
+                        <p className={`hidden md:block text-[10px] lg:text-xs font-bold text-zinc-500 mt-1 line-clamp-1`}>
+                          {pillar.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className={`transform transition-transform duration-300 shrink-0 ml-2 ${isActive ? "rotate-90 text-[#D2042D]" : "text-zinc-600"}`}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7" /></svg>
+                    </div>
+                  </div>
+
+                  {/* EXPANDED CONTENT (Hardware Accelerated Height Animation) */}
+                  <motion.div
+                    initial={false}
+                    animate={{ height: isActive ? "auto" : 0, opacity: isActive ? 1 : 0 }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-3 lg:pt-6 mt-2 lg:mt-4 border-t border-zinc-800/80 flex flex-col sm:flex-row gap-3 lg:gap-8 items-start sm:items-center justify-between pb-1">
+
+                      <p className="text-[10px] sm:text-xs lg:text-sm text-zinc-300 leading-snug lg:leading-relaxed font-medium flex-1 line-clamp-3 sm:line-clamp-none">
+                        {pillar.details}
+                      </p>
+
+                      <div className="flex items-center gap-4 lg:gap-6 w-full sm:w-auto justify-between sm:justify-end shrink-0">
+                        {/* The Quick Stat */}
+                        <div className="text-left sm:text-right">
+                          <p className="text-xl lg:text-3xl font-black text-[#D2042D] leading-none">
+                            {pillar.stat}
+                          </p>
+                          <p className="text-[8px] lg:text-[9px] font-bold text-zinc-500 uppercase tracking-widest mt-1">
+                            {pillar.statLabel}
+                          </p>
+                        </div>
+
+                        {/* The Action Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigateToSection(pillar.id);
+                          }}
+                          className="px-3 py-2 lg:px-6 lg:py-3 bg-zinc-900 border border-zinc-700 hover:border-[#D2042D] hover:bg-[#D2042D] text-white text-[8px] lg:text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all duration-300"
+                        >
+                          Explore
+                        </button>
+                      </div>
+
+                    </div>
+                  </motion.div>
+
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
       </div>
     </div>

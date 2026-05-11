@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 
 const EDUCATION_DATA = [
   {
@@ -9,153 +9,189 @@ const EDUCATION_DATA = [
     degree: "BBA, LL.B. (Hons.)",
     institution: "VIT-AP University",
     category: "Undergraduate Degree",
-    details: "CGPA: 8.19/10. Recipient of the Academic Excellence Award for outstanding academic performance.",
+    details: "CGPA: 8.19/10. Recipient of the Academic Excellence Award for outstanding academic performance. Comprehensive focus on corporate law, intellectual property, and legal research methodologies.",
     logo: "/Education/VIT.png",
-    initials: "VIT",
+    initials: "Degree",
   },
   {
     year: "2025",
-    degree: "Diploma in Tech Law & Fintech",
+    degree: "Diploma in Tech Law",
     institution: "LawSikho",
     category: "Professional Certification",
-    details: "Completed with an A Grade. Focused on technology contracts, fintech regulations, and compliance frameworks.",
+    details: "Completed with an A Grade. Intensive curriculum focused on technology contracts, fintech regulations, data privacy, and modern compliance frameworks.",
     logo: "/Education/LAWSEIKHO.png",
-    initials: "LS",
+    initials: "Diploma",
   },
   {
     year: "2019 – 2021",
     degree: "Class XII (Intermediate)",
-    institution: "Sri Viswashanti Educational Institution",
+    institution: "Sri Viswashanti Educational",
     category: "APBIE Board",
-    details: "Secured 84% with strong academic performance across core subjects.",
+    details: "Secured 84% with strong academic performance across core subjects, establishing a rigorous analytical foundation for higher legal education.",
     logo: "/Education/BIEAP.png",
-    initials: "SVEI",
+    initials: "12th",
   },
   {
     year: "2018 – 2019",
     degree: "Class X (SSC)",
     institution: "Sri Chaitanya Techno School",
     category: "BSEAP Board",
-    details: "Achieved 9.3 GPA, demonstrating consistent academic excellence and discipline.",
+    details: "Achieved 9.3 GPA, demonstrating consistent academic excellence, discipline, and leadership in foundational studies.",
     logo: "/Education/BSEAP.png",
-    initials: "SCTS",
+    initials: "10th",
   },
 ];
 
-const GRID_POSITIONING = [
-  "md:col-start-1 md:row-start-1",
-  "md:col-start-2 md:row-start-1",
-  "md:col-start-2 md:row-start-2",
-  "md:col-start-1 md:row-start-2",
-];
-
-function EducationTile({ item, index }: { item: typeof EDUCATION_DATA[number]; index: number }) {
-  const [imgFailed, setImgFailed] = useState(false);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1, ease: [0.23, 1, 0.32, 1] }}
-      className={`relative z-10 w-full h-full group ${GRID_POSITIONING[index]}`}
-    >
-      <div className="h-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 sm:p-5 rounded-2xl flex flex-col group-hover:border-[#D2042D]/40 dark:group-hover:border-red-900/60 group-hover:shadow-xl transition-all duration-500 group-hover:-translate-y-1">
-
-        <div className="flex justify-between items-start mb-3 sm:mb-4">
-          {/* LOCKED TO WHITE: Removed dark mode background classes here */}
-          <div className="w-10 h-10 sm:w-12 sm:h-12 shrink-0 bg-white border border-zinc-200 rounded-xl flex items-center justify-center p-2 shadow-sm group-hover:border-[#D2042D]/30 transition-colors duration-300">
-            {!imgFailed ? (
-              <img
-                src={item.logo}
-                alt={item.institution}
-                className="w-full h-full object-contain grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-                onError={() => setImgFailed(true)}
-              />
-            ) : (
-              <span className="text-[8px] sm:text-[10px] font-black text-zinc-400 group-hover:text-[#D2042D] transition-colors duration-300">
-                {item.initials}
-              </span>
-            )}
-          </div>
-
-          <div className="flex flex-col items-end gap-1.5">
-            <span className="bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700 text-[8px] sm:text-[9px] font-bold px-2 py-1 rounded uppercase tracking-widest">
-              {item.year}
-            </span>
-            <span className="text-[#D2042D] dark:text-red-500 text-[7px] sm:text-[8px] font-black uppercase tracking-[0.2em]">
-              {item.category}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex-1 min-h-0 flex flex-col">
-          <h3 className="text-sm sm:text-base font-black text-zinc-900 dark:text-zinc-50 leading-snug tracking-tight mb-1 transition-colors duration-300">
-            {item.degree}
-          </h3>
-          <p className="text-[11px] sm:text-[13px] font-bold text-zinc-500 dark:text-zinc-400 mb-3 sm:mb-4">
-            {item.institution}
-          </p>
-
-          <div className="mt-auto pt-3 border-t border-zinc-100 dark:border-zinc-800/50">
-            <p className="text-[9px] sm:text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400 font-medium line-clamp-3 sm:line-clamp-none">
-              {item.details}
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </motion.div>
-  );
-}
-
 export default function Education() {
+  const [active, setActive] = useState(0);
+  const [imgFailed, setImgFailed] = useState<Record<number, boolean>>({});
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Auto-scroll logic
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    const interval = setInterval(() => {
+      setActive((prev) => (prev + 1) % EDUCATION_DATA.length);
+    }, 4000); // Switches every 4 seconds
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
+
   return (
-    <div className="w-full h-[100svh] flex flex-col bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300 overflow-hidden">
-      <div className="w-full h-full max-w-6xl mx-auto flex flex-col px-6 md:px-10 py-6 md:py-10">
+    <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden flex flex-col font-sans">
 
-        <div className="mb-6 md:mb-8 shrink-0">
-          <div className="flex justify-between items-end">
-            <div>
-              <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-zinc-900 dark:text-white transition-colors duration-300">
-                Academic <span className="text-[#D2042D]">Foundation</span>
-              </h2>
-              <div className="flex items-center gap-3 mt-2 sm:mt-3">
-                <div className="h-0.5 w-6 sm:w-8 bg-[#D2042D] rounded-full" />
-                <p className="text-zinc-500 dark:text-zinc-400 text-[9px] sm:text-[11px] uppercase tracking-[0.25em] font-bold transition-colors duration-300">
-                  Degrees & Certifications
-                </p>
-              </div>
-            </div>
+      {/* ── AMBIENT BACKGROUND ── */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
+      <div className="absolute bottom-0 left-0 w-[300px] lg:w-[600px] h-[300px] lg:h-[600px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0 translate-y-1/2 -translate-x-1/4" />
+
+      {/* ── MAIN LAYOUT WRAPPER ── */}
+      <div className="relative z-10 w-full max-w-[90rem] mx-auto px-5 md:px-12 flex flex-col h-full pt-[15svh] lg:pt-[14svh] pb-[4svh] lg:pb-[8svh] justify-between">
+
+        {/* ── HEADER ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+          className="w-full flex flex-col items-center lg:items-start text-center lg:text-left mb-6 lg:mb-10 shrink-0"
+        >
+          <div className="mb-2 lg:mb-4 flex items-center justify-center lg:justify-start gap-2 lg:gap-3 w-full">
+            <span className="w-6 lg:w-8 h-[2px] bg-[#D2042D]"></span>
+            <p className="text-[9px] lg:text-[10px] text-zinc-400 uppercase tracking-[0.3em] font-bold">Academics</p>
           </div>
+          {/* FIXED MOBILE OVERFLOW: Switched to block spans to guarantee stacking, safely scaled text size */}
+          <h2 className="text-[9.5vw] sm:text-5xl lg:text-[4.5rem] font-black leading-[0.95] tracking-tight uppercase">
+            <span className="text-white block mb-1 lg:mb-2 lg:inline">Academic</span>
+            <span className="text-transparent [-webkit-text-stroke:1px_#D2042D] lg:[-webkit-text-stroke:1.5px_#D2042D] block lg:inline lg:ml-4">Foundation</span>
+          </h2>
+        </motion.div>
+
+        {/* ── CONTENT SPLIT (Timeline + Display Box) ── */}
+        <div
+          className="flex flex-col lg:flex-row gap-6 lg:gap-16 flex-1 min-h-0 w-full items-center lg:items-stretch"
+          onMouseEnter={() => setIsAutoPlaying(false)}
+          onMouseLeave={() => setIsAutoPlaying(true)}
+          onTouchStart={() => setIsAutoPlaying(false)} // Pauses auto-scroll if user taps on mobile
+        >
+
+          {/* 1. TIMELINE NAVIGATION */}
+          <div className="w-full lg:w-1/3 flex lg:flex-col justify-between lg:justify-start lg:gap-10 relative shrink-0">
+            {/* Desktop Vertical Line connecting nodes */}
+            <div className="hidden lg:block absolute left-[11px] top-4 bottom-4 w-[2px] bg-zinc-800/50 -z-10" />
+            {/* Mobile Horizontal Line connecting nodes */}
+            <div className="lg:hidden absolute top-[11px] left-6 right-6 h-[2px] bg-zinc-800/50 -z-10" />
+
+            {EDUCATION_DATA.map((item, i) => {
+              const isActive = active === i;
+              return (
+                <button
+                  key={i}
+                  onClick={() => {
+                    setActive(i);
+                    setIsAutoPlaying(false);
+                  }}
+                  className={`relative flex lg:flex-row flex-col items-center lg:items-start gap-2 lg:gap-6 group text-left ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-70'} transition-opacity duration-300`}
+                >
+                  {/* Timeline Node */}
+                  <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-500 bg-[#09090b] ${isActive ? 'border-[#D2042D] scale-125 shadow-[0_0_15px_rgba(210,4,45,0.4)]' : 'border-zinc-700 group-hover:border-zinc-500'}`}>
+                    {isActive && <motion.div layoutId="activeDot" className="w-2 h-2 rounded-full bg-[#D2042D]" />}
+                  </div>
+
+                  {/* Timeline Text */}
+                  <div className="flex flex-col items-center lg:items-start mt-2 lg:mt-0">
+                    <span className="text-[10px] lg:text-xs font-bold text-zinc-500 uppercase tracking-widest mb-1 hidden sm:block">
+                      {item.year}
+                    </span>
+                    <span className={`text-[9px] sm:text-xs lg:text-sm font-black uppercase tracking-wider text-center lg:text-left transition-colors duration-300 ${isActive ? 'text-white' : 'text-zinc-500'}`}>
+                      {item.initials}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 2. CINEMATIC DISPLAY BOX */}
+          <div className="flex-1 w-full max-w-2xl relative h-full flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#D2042D]/5 blur-[80px] rounded-full pointer-events-none" />
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={active}
+                initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
+                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+                exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                className="w-full bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 p-6 sm:p-8 lg:p-12 rounded-3xl lg:rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[250px] lg:min-h-[350px]"
+              >
+                {/* Watermark Background Number */}
+                <span className="absolute -bottom-10 -right-4 text-[12rem] lg:text-[16rem] font-black text-white/[0.02] select-none pointer-events-none leading-none">
+                  0{active + 1}
+                </span>
+
+                {/* Top Row: Logo & Badges */}
+                <div className="flex justify-between items-start mb-6 lg:mb-10 relative z-10">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 shrink-0 bg-white/95 rounded-2xl flex items-center justify-center p-2.5 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    {!imgFailed[active] ? (
+                      <img
+                        src={EDUCATION_DATA[active].logo}
+                        alt={EDUCATION_DATA[active].institution}
+                        className="w-full h-full object-contain"
+                        onError={() => setImgFailed(prev => ({ ...prev, [active]: true }))}
+                      />
+                    ) : (
+                      <span className="text-[10px] sm:text-xs font-black text-[#09090b]">
+                        {EDUCATION_DATA[active].initials}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex flex-col items-end gap-2 text-right">
+                    <span className="bg-[#D2042D]/10 border border-[#D2042D]/20 text-[#D2042D] text-[9px] sm:text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest">
+                      {EDUCATION_DATA[active].year}
+                    </span>
+                    <span className="text-zinc-500 text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em]">
+                      {EDUCATION_DATA[active].category}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="relative z-10 flex-1 flex flex-col justify-end">
+                  <h3 className="text-lg sm:text-2xl lg:text-3xl font-black text-white leading-snug tracking-tight mb-2">
+                    {EDUCATION_DATA[active].degree}
+                  </h3>
+                  <p className="text-[12px] sm:text-sm lg:text-base font-bold text-zinc-400 mb-4 lg:mb-6">
+                    {EDUCATION_DATA[active].institution}
+                  </p>
+
+                  <div className="w-12 h-[1px] bg-zinc-800 mb-4 lg:mb-6" />
+
+                  <p className="text-[11px] sm:text-xs lg:text-sm leading-relaxed text-zinc-300 font-medium">
+                    {EDUCATION_DATA[active].details}
+                  </p>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
         </div>
-
-        <div className="flex-1 min-h-0 relative w-full flex items-center justify-center pb-2 md:pb-6">
-
-          <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
-
-            <div className="md:hidden absolute top-[12.5%] bottom-[12.5%] left-1/2 w-[2px] bg-zinc-200 dark:bg-zinc-800 -translate-x-1/2 shadow-[0_0_10px_rgba(210,4,45,0.1)]" />
-
-            <div className="hidden md:block absolute inset-0">
-              <div className="absolute top-[25%] left-[25%] right-[25%] h-[2px] bg-zinc-200 dark:bg-zinc-800" />
-              <div className="absolute top-[25%] bottom-[25%] right-[25%] w-[2px] bg-zinc-200 dark:bg-zinc-800" />
-              <div className="absolute bottom-[25%] left-[25%] right-[25%] h-[2px] bg-zinc-200 dark:bg-zinc-800" />
-
-              <div className="absolute top-[25%] left-[25%] w-3 h-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-              <div className="absolute top-[25%] right-[25%] w-3 h-3 translate-x-1/2 -translate-y-1/2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-              <div className="absolute bottom-[25%] right-[25%] w-3 h-3 translate-x-1/2 translate-y-1/2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-              <div className="absolute bottom-[25%] left-[25%] w-3 h-3 -translate-x-1/2 translate-y-1/2 rounded-full bg-zinc-300 dark:bg-zinc-700" />
-            </div>
-          </div>
-
-          <div className="w-full h-full grid grid-cols-1 md:grid-cols-2 grid-rows-4 md:grid-rows-2 gap-4 sm:gap-6 lg:gap-8">
-            {EDUCATION_DATA.map((item, i) => (
-              <EducationTile key={i} item={item} index={i} />
-            ))}
-          </div>
-
-        </div>
-
       </div>
     </div>
   );
