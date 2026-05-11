@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useSpring, Variants } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 // The Complete 13 Internship Dataset
@@ -235,6 +235,17 @@ const TIME_METRICS = [
   { value: "2.3", label: "Yrs" },
 ];
 
+// 🚨 FIX: Explicitly typed as Variants and moved OUTSIDE the component to prevent Vercel errors & re-render glitches
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any } }
+};
+
 export default function Experience() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -304,16 +315,6 @@ export default function Experience() {
   const handleCardInteraction = (index: number) => {
     handleUserInteraction();
     setActiveModalData(EXPERIENCE_DATA[index]);
-  };
-
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
   };
 
   return (

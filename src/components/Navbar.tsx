@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
 
-// 🚨 UPDATED WITH ALL 11 SECTIONS IN THE CORRECT ORDER
+// 🚨 ALL 11 SECTIONS RESTORED
 const LEFT_ITEMS = [
     { href: "#home", label: "Home" },
     { href: "#summary", label: "Summary" },
@@ -44,6 +43,7 @@ export default function Navbar() {
         } else {
             document.body.style.overflow = "unset";
         }
+        return () => { document.body.style.overflow = "unset"; };
     }, [mobileMenuOpen]);
 
     // Programmatic Scroll Interceptor for smooth snapping
@@ -64,7 +64,7 @@ export default function Navbar() {
                 animate={{ y: 0 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className={`fixed top-0 left-0 w-full z-[100] transition-all duration-500 ease-in-out font-sans flex justify-center ${scrolled
-                    ? "py-3 lg:py-4 bg-[#09090b]/80 backdrop-blur-xl border-b border-zinc-800/80 shadow-2xl"
+                    ? "py-3 lg:py-4 bg-[#09090b]/90 backdrop-blur-xl border-b border-zinc-800/80 shadow-2xl"
                     : "py-6 lg:py-8 bg-transparent"
                     }`}
             >
@@ -147,13 +147,13 @@ export default function Navbar() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: "-100%" }}
                         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                        className="fixed inset-0 w-full h-[100svh] bg-[#09090b] z-[90] flex flex-col px-6 pt-[14svh] pb-[4svh]"
+                        className="fixed inset-0 w-full h-[100svh] bg-[#09090b] z-[90] flex flex-col pt-[12svh] pb-[4svh]"
                     >
                         {/* Ambient Red Glow in Menu */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-[#D2042D]/10 rounded-full blur-[100px] pointer-events-none" />
 
-                        {/* 🚨 THE FIX: Scrollable Menu Links */}
-                        <div className="flex-1 w-full overflow-y-auto scrollbar-hide flex flex-col items-center justify-start gap-3 sm:gap-4 relative z-10 pb-6">
+                        {/* 🚨 THE FIX: Scrollable Menu Links (flex-1 + overflow-y-auto) */}
+                        <div className="flex-1 w-full overflow-y-auto scrollbar-hide flex flex-col items-center justify-start gap-4 sm:gap-6 relative z-10 px-6 pt-10">
                             {ALL_ITEMS.map((item, i) => (
                                 <motion.div
                                     key={i}
@@ -166,7 +166,7 @@ export default function Navbar() {
                                     <a
                                         href={item.href}
                                         onClick={(e) => handleNavClick(e, item.href)}
-                                        className="text-2xl sm:text-3xl font-black uppercase text-zinc-400 hover:text-white transition-all duration-300 block py-1.5"
+                                        className="text-2xl sm:text-3xl lg:text-4xl font-black uppercase text-zinc-400 hover:text-white hover:tracking-widest transition-all duration-300 block py-1.5"
                                     >
                                         {item.label}
                                     </a>
@@ -174,18 +174,18 @@ export default function Navbar() {
                             ))}
                         </div>
 
-                        {/* 🚨 THE FIX: Button stays naturally at the bottom, no absolute overlapping */}
+                        {/* 🚨 THE FIX: Button pinned structurally at the bottom, NEVER overlaps */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.4, duration: 0.5 }}
-                            className="shrink-0 w-full flex justify-center relative z-10 pt-4"
+                            className="shrink-0 w-full flex justify-center relative z-10 pt-6"
                         >
                             <a
                                 href="/Swaroop Cv.pdf"
                                 download
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="px-8 py-4 border border-zinc-700 bg-transparent text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-none active:bg-[#D2042D] transition-colors"
+                                className="px-8 py-4 border border-zinc-700 bg-[#09090b]/50 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-none active:bg-[#D2042D] transition-colors"
                             >
                                 Download CV
                             </a>

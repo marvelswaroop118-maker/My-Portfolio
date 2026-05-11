@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, Variants } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 
 // Chronologically sorted unified timeline
@@ -143,12 +143,14 @@ export default function Accolades() {
         return () => clearInterval(interval);
     }, [isAutoPlaying, isMobile]);
 
-    const staggerContainer = {
+    // 🚨 FIX: Explicitly typed as Variants to satisfy strict TypeScript rules
+    const staggerContainer: Variants = {
         hidden: { opacity: 0 },
         show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
     };
 
-    const fadeUp = {
+    // 🚨 FIX: Explicitly typed as Variants
+    const fadeUp: Variants = {
         hidden: { opacity: 0, y: 20 },
         show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
     };
@@ -229,8 +231,8 @@ export default function Accolades() {
                                 animate={{ opacity: 1, scale: 1, x: 0 }}
                                 transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
                                 className={`relative snap-center shrink-0 w-[85vw] sm:w-[320px] lg:w-[400px] h-[300px] lg:h-[350px] rounded-3xl p-6 lg:p-8 shadow-xl flex flex-col justify-between group overflow-hidden border transition-colors duration-500 ${item.highlight
-                                        ? "bg-gradient-to-br from-[#0c0c0e] to-[#1a0508] border-[#D2042D]/40"
-                                        : "bg-[#0c0c0e]/80 backdrop-blur-xl border-zinc-800/80 hover:bg-[#0c0c0e]"
+                                    ? "bg-gradient-to-br from-[#0c0c0e] to-[#1a0508] border-[#D2042D]/40"
+                                    : "bg-[#0c0c0e]/80 backdrop-blur-xl border-zinc-800/80 hover:bg-[#0c0c0e]"
                                     }`}
                             >
                                 {/* Red Glow for Highlighted Cards */}
@@ -245,14 +247,14 @@ export default function Accolades() {
                                 <div className="flex justify-between items-start relative z-10">
                                     <div className="flex flex-col gap-2 items-start">
                                         <span className={`text-[8px] lg:text-[9px] font-black px-2 py-1 rounded-sm uppercase tracking-[0.2em] border ${item.category === "Academic"
-                                                ? "bg-[#D2042D]/10 border-[#D2042D]/20 text-[#D2042D]"
-                                                : "bg-zinc-800/50 border-zinc-700/50 text-zinc-400"
+                                            ? "bg-[#D2042D]/10 border-[#D2042D]/20 text-[#D2042D]"
+                                            : "bg-zinc-800/50 border-zinc-700/50 text-zinc-400"
                                             }`}>
                                             {item.category}
                                         </span>
                                         <span className={`text-[10px] lg:text-[11px] font-black px-3 py-1.5 rounded-sm uppercase tracking-widest ${item.highlight
-                                                ? "bg-[#D2042D] text-white"
-                                                : "bg-white text-black"
+                                            ? "bg-[#D2042D] text-white"
+                                            : "bg-white text-black"
                                             }`}>
                                             {item.badge}
                                         </span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 // --- REFINED DATASET (CRIMINAL & FAMILY FOCUS) ---
@@ -33,6 +33,17 @@ const EXPERTISE_DATA = {
   ]
 };
 
+// 🚨 FIX: Moved variants OUTSIDE the component and typed securely to prevent Vercel errors & re-render lag
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any } }
+};
+
 export default function Expertise() {
   const [mounted, setMounted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -56,30 +67,21 @@ export default function Expertise() {
     setScrollProgress(scrollLeft / maxScroll);
   };
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-  };
-
   return (
     // STRICT LOCK: 100svh, hidden overflow, flex column
     <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden flex flex-col font-sans">
 
       {/* ── AMBIENT BACKGROUND ── */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] lg:w-[600px] h-[300px] lg:h-[600px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0" />
+      {/* 🚨 FIX: Added transform-gpu to offload heavy blurring to the Graphics Card for frictionless scrolling */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] lg:w-[600px] h-[300px] lg:h-[600px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0 transform-gpu" />
 
       {/* ── MAIN LAYOUT WRAPPER ── */}
       <div className="relative z-10 w-full max-w-[90rem] mx-auto flex flex-col h-full pt-[12svh] lg:pt-[14svh] pb-[3svh] lg:pb-[5svh]">
 
         {/* ── HEADER ── */}
         <motion.div
-          variants={staggerContainer} initial="hidden" animate="show"
+          variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-50px" }}
           className="w-full flex flex-col items-center lg:items-start text-center lg:text-left mb-4 lg:mb-8 shrink-0 px-5 md:px-12"
         >
           <motion.div variants={fadeUp} className="mb-2 lg:mb-3 flex items-center justify-center lg:justify-start gap-2 lg:gap-3 w-full">
@@ -123,7 +125,7 @@ export default function Expertise() {
           >
 
             {/* 1. PRACTICE AREAS */}
-            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-2 bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col group hover:border-zinc-700 transition-colors duration-300">
+            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-2 bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col group hover:border-zinc-700 transition-colors duration-300 transform-gpu">
               <div className="flex items-center gap-2 mb-4 border-b border-zinc-800/50 pb-3 shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 group-hover:bg-[#D2042D] transition-colors duration-500" />
                 <h3 className="text-[11px] lg:text-sm font-black uppercase tracking-[0.2em] text-white">Practice Areas</h3>
@@ -138,8 +140,8 @@ export default function Expertise() {
             </motion.div>
 
             {/* 2. SPECIALISATION (Highlighted Premium Card) */}
-            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-1 bg-[#0c0c0e]/90 backdrop-blur-xl border border-[#D2042D]/30 p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col relative overflow-hidden group hover:border-[#D2042D]/60 shadow-[0_0_20px_rgba(210,4,45,0.03)] transition-all duration-300">
-              <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#D2042D]/10 rounded-full blur-[40px] pointer-events-none group-hover:bg-[#D2042D]/20 transition-colors duration-500" />
+            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-1 bg-[#0c0c0e]/90 backdrop-blur-xl border border-[#D2042D]/30 p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col relative overflow-hidden group hover:border-[#D2042D]/60 shadow-[0_0_20px_rgba(210,4,45,0.03)] transition-all duration-300 transform-gpu">
+              <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#D2042D]/10 rounded-full blur-[40px] pointer-events-none group-hover:bg-[#D2042D]/20 transition-colors duration-500 transform-gpu" />
 
               <div className="relative z-10 flex items-center gap-2 mb-4 border-b border-[#D2042D]/20 pb-3 shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-[#D2042D] shadow-[0_0_8px_rgba(210,4,45,0.8)]" />
@@ -156,7 +158,7 @@ export default function Expertise() {
             </motion.div>
 
             {/* 3. CORE LEGAL SKILLS (Tall Card) */}
-            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-2 bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col group hover:border-zinc-700 transition-colors duration-300">
+            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-2 bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col group hover:border-zinc-700 transition-colors duration-300 transform-gpu">
               <div className="flex items-center gap-2 mb-4 border-b border-zinc-800/50 pb-3 shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 group-hover:bg-[#D2042D] transition-colors duration-500" />
                 <h3 className="text-[11px] lg:text-sm font-black uppercase tracking-[0.2em] text-white">Core Legal Skills</h3>
@@ -174,7 +176,7 @@ export default function Expertise() {
             </motion.div>
 
             {/* 4. TOOLS & RESEARCH (Compact Card) */}
-            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-1 bg-[#0c0c0e]/40 backdrop-blur-xl border border-zinc-800/50 border-dashed p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col group hover:border-zinc-700 hover:bg-[#0c0c0e]/80 transition-colors duration-300">
+            <motion.div variants={fadeUp} className="shrink-0 snap-center w-[85vw] sm:w-[320px] lg:w-auto h-full lg:col-span-1 bg-[#0c0c0e]/40 backdrop-blur-xl border border-zinc-800/50 border-dashed p-5 lg:p-6 rounded-3xl lg:rounded-[2rem] flex flex-col group hover:border-zinc-700 hover:bg-[#0c0c0e]/80 transition-colors duration-300 transform-gpu">
               <div className="flex items-center gap-2 mb-4 border-b border-zinc-800/50 pb-3 shrink-0">
                 <div className="w-1.5 h-1.5 rounded-full bg-zinc-700 group-hover:text-white transition-colors duration-500" />
                 <h3 className="text-[11px] lg:text-sm font-black uppercase tracking-[0.2em] text-zinc-500 group-hover:text-white transition-colors">Digital Tools</h3>

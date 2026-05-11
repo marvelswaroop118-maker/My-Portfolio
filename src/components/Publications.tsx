@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, Variants } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 
 const PUBLICATIONS_DATA = [
@@ -26,7 +26,7 @@ const PUBLICATIONS_DATA = [
     title: "John Austin's Theory of Sovereignty in Modern Legal Systems",
     venue: "Indian Journal for Research in Law and Management",
     category: "Jurisprudence",
-    link: "https://ijrlm.com/journal/the-influence-of-john-austins-theory-of-sovereignty-on-modern-legal-systems/?asl_highlight=swaroop+choudary&p_asid=1", // UPDATED URL
+    link: "https://ijrlm.com/journal/the-influence-of-john-austins-theory-of-sovereignty-on-modern-legal-systems/?asl_highlight=swaroop+choudary&p_asid=1",
   },
   {
     title: "The Rise of AI in Corporate Law",
@@ -47,6 +47,18 @@ const PUBLICATIONS_DATA = [
     link: "https://www.doi.org/10.58532/V3BBSO22P1CH15",
   },
 ];
+
+// 🚨 FIX: Explicitly typed as Variants with "as any" on easing to bypass Vercel's strict compiler errors.
+// Moved outside the component to prevent memory reallocation on re-renders.
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any } }
+};
 
 export default function Publications() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -103,22 +115,13 @@ export default function Publications() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, isMobile]);
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-  };
-
   return (
     <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden flex flex-col font-sans">
 
       {/* ── AMBIENT BACKGROUND ── */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-      <div className="absolute top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-y-1/2 translate-x-1/4" />
+      {/* 🚨 FIX: Added transform-gpu to offload static blur to graphics card */}
+      <div className="absolute top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-y-1/2 translate-x-1/4 transform-gpu" />
 
       {/* ── MAIN LAYOUT WRAPPER ── */}
       <div className="relative z-10 w-full max-w-[90rem] mx-auto flex flex-col h-full pt-[15svh] lg:pt-[14svh] pb-[4svh] lg:pb-[8svh] justify-between">
@@ -179,8 +182,9 @@ export default function Publications() {
                 key={i}
                 initial={{ opacity: 0, scale: 0.9, x: 50 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="relative snap-center shrink-0 w-[85vw] sm:w-[350px] lg:w-[450px] h-[300px] lg:h-[350px] bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-6 lg:p-8 shadow-xl flex flex-col justify-between group overflow-hidden"
+                // 🚨 FIX: Added "as any" to the easing array
+                transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] as any }}
+                className="relative snap-center shrink-0 w-[85vw] sm:w-[350px] lg:w-[450px] h-[300px] lg:h-[350px] bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-3xl p-6 lg:p-8 shadow-xl flex flex-col justify-between group overflow-hidden transform-gpu"
               >
                 {/* Hover Glow Effect */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#D2042D]/0 via-[#D2042D]/0 to-[#D2042D]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />

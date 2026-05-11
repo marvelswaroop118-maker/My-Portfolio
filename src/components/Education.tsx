@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 
 const EDUCATION_DATA = [
@@ -42,6 +42,24 @@ const EDUCATION_DATA = [
   },
 ];
 
+// 🚨 Maintained the smooth, hardware-accelerated card variants outside the component 
+// and kept the strict TypeScript fixes to prevent Vercel errors.
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as any }
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    scale: 0.98,
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as any }
+  }
+};
+
 export default function Education() {
   const [active, setActive] = useState(0);
   const [imgFailed, setImgFailed] = useState<Record<number, boolean>>({});
@@ -52,7 +70,7 @@ export default function Education() {
     if (!isAutoPlaying) return;
     const interval = setInterval(() => {
       setActive((prev) => (prev + 1) % EDUCATION_DATA.length);
-    }, 4000); // Switches every 4 seconds
+    }, 4500);
     return () => clearInterval(interval);
   }, [isAutoPlaying]);
 
@@ -61,21 +79,22 @@ export default function Education() {
 
       {/* ── AMBIENT BACKGROUND ── */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-      <div className="absolute bottom-0 left-0 w-[300px] lg:w-[600px] h-[300px] lg:h-[600px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0 translate-y-1/2 -translate-x-1/4" />
+      <div className="absolute bottom-0 left-0 w-[300px] lg:w-[600px] h-[300px] lg:h-[600px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0 translate-y-1/2 -translate-x-1/4 transform-gpu" />
 
       {/* ── MAIN LAYOUT WRAPPER ── */}
       <div className="relative z-10 w-full max-w-[90rem] mx-auto px-5 md:px-12 flex flex-col h-full pt-[15svh] lg:pt-[14svh] pb-[4svh] lg:pb-[8svh] justify-between">
 
-        {/* ── HEADER ── */}
+        {/* ── HEADER (Restored to force immediate animation) ── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as any }}
           className="w-full flex flex-col items-center lg:items-start text-center lg:text-left mb-6 lg:mb-10 shrink-0"
         >
           <div className="mb-2 lg:mb-4 flex items-center justify-center lg:justify-start gap-2 lg:gap-3 w-full">
             <span className="w-6 lg:w-8 h-[2px] bg-[#D2042D]"></span>
             <p className="text-[9px] lg:text-[10px] text-zinc-400 uppercase tracking-[0.3em] font-bold">Academics</p>
           </div>
-          {/* FIXED MOBILE OVERFLOW: Switched to block spans to guarantee stacking, safely scaled text size */}
           <h2 className="text-[9.5vw] sm:text-5xl lg:text-[4.5rem] font-black leading-[0.95] tracking-tight uppercase">
             <span className="text-white block mb-1 lg:mb-2 lg:inline">Academic</span>
             <span className="text-transparent [-webkit-text-stroke:1px_#D2042D] lg:[-webkit-text-stroke:1.5px_#D2042D] block lg:inline lg:ml-4">Foundation</span>
@@ -87,11 +106,16 @@ export default function Education() {
           className="flex flex-col lg:flex-row gap-6 lg:gap-16 flex-1 min-h-0 w-full items-center lg:items-stretch"
           onMouseEnter={() => setIsAutoPlaying(false)}
           onMouseLeave={() => setIsAutoPlaying(true)}
-          onTouchStart={() => setIsAutoPlaying(false)} // Pauses auto-scroll if user taps on mobile
+          onTouchStart={() => setIsAutoPlaying(false)}
         >
 
           {/* 1. TIMELINE NAVIGATION */}
-          <div className="w-full lg:w-1/3 flex lg:flex-col justify-between lg:justify-start lg:gap-10 relative shrink-0">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] as any }}
+            className="w-full lg:w-1/3 flex lg:flex-col justify-between lg:justify-start lg:gap-10 relative shrink-0"
+          >
             {/* Desktop Vertical Line connecting nodes */}
             <div className="hidden lg:block absolute left-[11px] top-4 bottom-4 w-[2px] bg-zinc-800/50 -z-10" />
             {/* Mobile Horizontal Line connecting nodes */}
@@ -110,7 +134,7 @@ export default function Education() {
                 >
                   {/* Timeline Node */}
                   <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all duration-500 bg-[#09090b] ${isActive ? 'border-[#D2042D] scale-125 shadow-[0_0_15px_rgba(210,4,45,0.4)]' : 'border-zinc-700 group-hover:border-zinc-500'}`}>
-                    {isActive && <motion.div layoutId="activeDot" className="w-2 h-2 rounded-full bg-[#D2042D]" />}
+                    {isActive && <motion.div layoutId="activeDot" className="w-2 h-2 rounded-full bg-[#D2042D]" transition={{ type: "spring", stiffness: 300, damping: 30 }} />}
                   </div>
 
                   {/* Timeline Text */}
@@ -125,20 +149,21 @@ export default function Education() {
                 </button>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* 2. CINEMATIC DISPLAY BOX */}
           <div className="flex-1 w-full max-w-2xl relative h-full flex items-center justify-center">
-            <div className="absolute inset-0 bg-[#D2042D]/5 blur-[80px] rounded-full pointer-events-none" />
+            {/* GPU Accelerated ambient glow */}
+            <div className="absolute inset-0 bg-[#D2042D]/5 blur-[80px] rounded-full pointer-events-none transform-gpu" />
 
             <AnimatePresence mode="wait">
               <motion.div
                 key={active}
-                initial={{ opacity: 0, scale: 0.95, filter: "blur(10px)" }}
-                animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-                exit={{ opacity: 0, scale: 1.05, filter: "blur(10px)" }}
-                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 p-6 sm:p-8 lg:p-12 rounded-3xl lg:rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[250px] lg:min-h-[350px]"
+                variants={cardVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="w-full bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 p-6 sm:p-8 lg:p-12 rounded-3xl lg:rounded-[2rem] shadow-2xl relative overflow-hidden flex flex-col justify-between min-h-[250px] lg:min-h-[350px] transform-gpu will-change-transform"
               >
                 {/* Watermark Background Number */}
                 <span className="absolute -bottom-10 -right-4 text-[12rem] lg:text-[16rem] font-black text-white/[0.02] select-none pointer-events-none leading-none">

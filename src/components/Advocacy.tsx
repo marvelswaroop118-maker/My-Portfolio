@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, Variants } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 
 // Strictly updated to reflect VSL Intra status and exact winning streak
@@ -134,12 +134,14 @@ export default function Advocacy() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, isMobile]);
 
-  const staggerContainer = {
+  // 🚨 FIX: Explicitly typed as Variants
+  const staggerContainer: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
   };
 
-  const fadeUp = {
+  // 🚨 FIX: Explicitly typed as Variants
+  const fadeUp: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
   };
@@ -220,8 +222,8 @@ export default function Advocacy() {
                 animate={{ opacity: 1, scale: 1, x: 0 }}
                 transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
                 className={`relative snap-center shrink-0 w-[85vw] sm:w-[320px] lg:w-[420px] h-[300px] lg:h-[350px] rounded-3xl p-6 lg:p-8 shadow-xl flex flex-col justify-between group overflow-hidden border transition-colors duration-500 ${item.role === "Winner"
-                    ? "bg-gradient-to-br from-[#0c0c0e] to-[#1a0508] border-[#D2042D]/40"
-                    : "bg-[#0c0c0e]/80 backdrop-blur-xl border-zinc-800/80"
+                  ? "bg-gradient-to-br from-[#0c0c0e] to-[#1a0508] border-[#D2042D]/40"
+                  : "bg-[#0c0c0e]/80 backdrop-blur-xl border-zinc-800/80"
                   }`}
               >
                 {/* Red Glow for Winning Cards */}
@@ -235,8 +237,8 @@ export default function Advocacy() {
                 {/* Card Top: Role & Year */}
                 <div className="flex justify-between items-start relative z-10">
                   <span className={`text-[9px] lg:text-[10px] font-black px-3 py-1.5 rounded-sm uppercase tracking-widest ${item.role === "Winner"
-                      ? "bg-[#D2042D] text-white"
-                      : "bg-[#D2042D]/10 border border-[#D2042D]/20 text-[#D2042D]"
+                    ? "bg-[#D2042D] text-white"
+                    : "bg-[#D2042D]/10 border border-[#D2042D]/20 text-[#D2042D]"
                     }`}>
                     {item.role}
                   </span>

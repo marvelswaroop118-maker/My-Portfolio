@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useSpring, Variants } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 // --- PERFECTED LEADERSHIP DATASET ---
@@ -90,6 +90,17 @@ const IMPACT_METRICS = [
     { value: "2023-25", label: "Active Years" },
 ];
 
+// 🚨 FIX: Explicitly typed as Variants and moved OUTSIDE the component to prevent Vercel errors & re-render glitches
+const staggerContainer: Variants = {
+    hidden: { opacity: 0 },
+    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+};
+
+const fadeUp: Variants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any } }
+};
+
 export default function Leadership() {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [isMobile, setIsMobile] = useState(false);
@@ -165,21 +176,12 @@ export default function Leadership() {
         }
     };
 
-    const staggerContainer = {
-        hidden: { opacity: 0 },
-        show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
-    };
-
-    const fadeUp = {
-        hidden: { opacity: 0, y: 20 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-    };
-
     return (
         <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden flex flex-col font-sans">
 
             <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-            <div className="absolute top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-y-1/4 translate-x-1/4" />
+            {/* 🚨 FIX: Added transform-gpu to offload static blur to graphics card */}
+            <div className="absolute top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-y-1/4 translate-x-1/4 transform-gpu" />
 
             {/* ── MAIN LAYOUT WRAPPER ── */}
             <div className="relative z-10 w-full max-w-[90rem] mx-auto flex flex-col h-full pt-[12svh] lg:pt-[14svh] pb-[3svh] lg:pb-[6svh]">
@@ -261,9 +263,10 @@ export default function Leadership() {
                                     key={item.id}
                                     initial={{ opacity: 0, scale: 0.9, x: 50 }}
                                     animate={{ opacity: 1, scale: 1, x: 0 }}
-                                    transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                                    // 🚨 FIX: Added "as any" to easing curve array for TypeScript compiler
+                                    transition={{ duration: 0.5, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] as any }}
                                     onClick={() => handleCardInteraction(i)}
-                                    className="relative snap-center shrink-0 w-[85vw] sm:w-[350px] lg:w-[480px] h-full max-h-[340px] lg:max-h-[380px] bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-[2rem] p-5 lg:p-8 flex flex-col justify-between group overflow-hidden cursor-pointer hover:border-zinc-700"
+                                    className="relative snap-center shrink-0 w-[85vw] sm:w-[350px] lg:w-[480px] h-full max-h-[340px] lg:max-h-[380px] bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-[2rem] p-5 lg:p-8 flex flex-col justify-between group overflow-hidden cursor-pointer hover:border-zinc-700 transform-gpu"
                                 >
                                     {!isTouch && <div className="absolute inset-0 bg-gradient-to-br from-[#D2042D]/0 via-[#D2042D]/0 to-[#D2042D]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />}
 
@@ -350,8 +353,6 @@ export default function Leadership() {
                             <div className="p-5 md:p-8 bg-[#09090b] border-b border-zinc-800 flex justify-between items-start shrink-0">
                                 <div className="flex items-center gap-4 md:gap-6">
 
-                                    {/* 🚨 THE FIX: VIT LOGO INSTEAD OF INITIALS 🚨 */}
-                                    {/* Change "/vit-logo.png" to whatever your image is actually named in your public folder */}
                                     <div className="w-14 h-14 md:w-20 md:h-20 bg-white rounded-2xl flex items-center justify-center p-2 md:p-3 shrink-0 shadow-inner overflow-hidden">
                                         <img
                                             src="/Education/VIT.png"

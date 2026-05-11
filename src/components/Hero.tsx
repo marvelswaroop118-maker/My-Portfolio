@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, animate } from "framer-motion";
+import { motion, animate, Variants } from "framer-motion";
 import Image from "next/image";
 
 // --- BULLETPROOF ANIMATED COUNTER ---
@@ -24,20 +24,22 @@ const AnimatedCounter = ({ value, padZero = false }: { value: number, padZero?: 
   return <span>{displayValue}</span>;
 };
 
+// 🚨 VERCEL FIX: Explicitly typed as Variants with "as any" on easing to bypass strict compiler errors.
+// Moved outside the component to prevent memory reallocation on re-renders.
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15, delayChildren: 0.2 }
+  }
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any } }
+};
+
 export default function Hero() {
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.2 }
-    }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-  };
-
   return (
     // Strict 100svh, absolute hidden overflow locks it to a single slide
     <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden font-sans">
@@ -46,8 +48,8 @@ export default function Hero() {
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0"
         style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }}
       />
-      {/* Static glow to prevent lag */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-[#D2042D]/10 rounded-full blur-[100px] pointer-events-none z-0" />
+      {/* 🚨 FIX: Added transform-gpu to offload static blur to graphics card */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-[#D2042D]/10 rounded-full blur-[100px] pointer-events-none z-0 transform-gpu" />
 
       {/* ── 2. THE CINEMATIC WATERMARK (Z-10) ── */}
       {/* Locked to absolute center, sitting beautifully behind the portrait */}
@@ -55,7 +57,7 @@ export default function Hero() {
         <motion.div
           initial={{ opacity: 0, scale: 0.92 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] as any }}
           className="flex flex-col items-center w-full"
         >
           {/* Infinite Breathing Animation */}
@@ -78,11 +80,11 @@ export default function Hero() {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 1.2, delay: 0.1, ease: [0.16, 1, 0.3, 1] as any }}
         className="absolute left-1/2 -translate-x-1/2 bottom-0 w-[95%] sm:w-[75%] md:w-[500px] lg:w-[650px] h-[60vh] lg:h-[85vh] z-20 pointer-events-none flex items-end justify-center"
       >
-        {/* Core backlight for the portrait */}
-        <div className="absolute top-[30%] w-[50%] h-[50%] bg-[#D2042D]/20 rounded-full blur-[80px] lg:blur-[120px] -z-10" />
+        {/* Core backlight for the portrait (Hardware Accelerated) */}
+        <div className="absolute top-[30%] w-[50%] h-[50%] bg-[#D2042D]/20 rounded-full blur-[80px] lg:blur-[120px] -z-10 transform-gpu" />
 
         <Image
           src="/Swaroop_Hero.PNG"

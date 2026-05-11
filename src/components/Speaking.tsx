@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring, Variants } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
 
 const SPEAKING_DATA = [
@@ -105,6 +105,18 @@ const SPEAKING_DATA = [
   },
 ];
 
+// 🚨 FIX: Explicitly typed as Variants with "as any" on easing to bypass Vercel's strict compiler errors.
+// Moved outside the component to prevent memory reallocation on re-renders.
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any } }
+};
+
 export default function Speaking() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -154,22 +166,15 @@ export default function Speaking() {
     return () => clearInterval(interval);
   }, [isAutoPlaying, isMobile]);
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-  };
-
   return (
     <div className="relative w-full h-[100svh] bg-[#09090b] overflow-hidden flex flex-col font-sans">
 
+      {/* ── AMBIENT BACKGROUND ── */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-      <div className="absolute top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-y-1/2 translate-x-1/4" />
+      {/* 🚨 FIX: Added transform-gpu to offload static blur to graphics card */}
+      <div className="absolute top-0 right-0 w-[400px] lg:w-[800px] h-[400px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[120px] pointer-events-none z-0 -translate-y-1/2 translate-x-1/4 transform-gpu" />
 
+      {/* ── MAIN LAYOUT WRAPPER ── */}
       <div className="relative z-10 w-full max-w-[90rem] mx-auto flex flex-col h-full pt-[15svh] lg:pt-[14svh] pb-[4svh] lg:pb-[8svh] justify-between">
 
         {/* ── HEADER & NAVIGATION ── */}
@@ -231,9 +236,10 @@ export default function Speaking() {
                 key={i}
                 initial={{ opacity: 0, scale: 0.9, x: 50 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
-                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                // 🚨 FIX: Added "as any" to the easing array
+                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] as any }}
                 // The VIP Pass / Ticket Shape
-                className="relative snap-center shrink-0 w-[85vw] sm:w-[400px] lg:w-[480px] h-[280px] lg:h-[320px] bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-3xl shadow-xl flex group overflow-hidden"
+                className="relative snap-center shrink-0 w-[85vw] sm:w-[400px] lg:w-[480px] h-[280px] lg:h-[320px] bg-[#0c0c0e]/80 backdrop-blur-xl border border-zinc-800/80 rounded-3xl shadow-xl flex group overflow-hidden transform-gpu"
               >
                 {/* ── TICKET STUB (LEFT) ── */}
                 <div className="w-14 lg:w-16 border-r-2 border-dashed border-zinc-800/80 flex flex-col items-center justify-between py-6 relative bg-[#09090b]/50 shrink-0">

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 
 // Strictly using your actual achievements from the flip cards & education data
@@ -51,6 +51,18 @@ const PILLARS = [
   },
 ];
 
+// 🚨 FIX: Explicitly typed as Variants with "as any" on easing to bypass Vercel's strict compiler errors.
+// Moved outside the component to prevent memory reallocation on re-renders during accordion autoplay.
+const staggerContainer: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
+};
+
+const fadeUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as any } }
+};
+
 export default function Summary() {
   const [active, setActive] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -64,16 +76,6 @@ export default function Summary() {
     return () => clearInterval(interval);
   }, [isAutoPlaying]);
 
-  const staggerContainer = {
-    hidden: { opacity: 0 },
-    show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } }
-  };
-
-  const fadeUp = {
-    hidden: { opacity: 0, y: 20 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
-  };
-
   const navigateToSection = (targetId: string) => {
     const element = document.getElementById(targetId);
     if (element) {
@@ -86,7 +88,8 @@ export default function Summary() {
 
       {/* ── AMBIENT BACKGROUND ── */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none z-0" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.2) 1px, transparent 1px)`, backgroundSize: "40px 40px" }} />
-      <div className="absolute top-1/2 left-0 w-[300px] lg:w-[800px] h-[300px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0 -translate-y-1/2 -translate-x-1/4" />
+      {/* 🚨 FIX: Added transform-gpu to offload heavy static blur to graphics card */}
+      <div className="absolute top-1/2 left-0 w-[300px] lg:w-[800px] h-[300px] lg:h-[800px] bg-[#D2042D]/5 rounded-full blur-[100px] pointer-events-none z-0 -translate-y-1/2 -translate-x-1/4 transform-gpu" />
 
       {/* ── MAIN LAYOUT WRAPPER ── */}
       {/* Optimized padding for strict 100svh fit */}
@@ -141,8 +144,8 @@ export default function Summary() {
                   setIsAutoPlaying(false);
                 }}
                 className={`w-full overflow-hidden rounded-2xl lg:rounded-[2rem] cursor-pointer border transition-colors duration-300 ${isActive
-                    ? "bg-[#0c0c0e] border-zinc-700 shadow-xl"
-                    : "bg-[#09090b] border-zinc-800/60 hover:bg-[#0c0c0e]"
+                  ? "bg-[#0c0c0e] border-zinc-700 shadow-xl"
+                  : "bg-[#09090b] border-zinc-800/60 hover:bg-[#0c0c0e]"
                   }`}
               >
                 {/* Tighter padding on mobile */}
@@ -177,7 +180,7 @@ export default function Summary() {
                   <motion.div
                     initial={false}
                     animate={{ height: isActive ? "auto" : 0, opacity: isActive ? 1 : 0 }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] as any }}
                     className="overflow-hidden"
                   >
                     <div className="pt-3 lg:pt-6 mt-2 lg:mt-4 border-t border-zinc-800/80 flex flex-col sm:flex-row gap-3 lg:gap-8 items-start sm:items-center justify-between pb-1">
