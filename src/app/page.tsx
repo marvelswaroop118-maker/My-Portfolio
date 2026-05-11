@@ -27,6 +27,12 @@ export default function Home() {
         className={`h-[100svh] w-screen snap-y snap-mandatory scroll-smooth bg-[#09090b] text-white relative 
         ${isLoading ? 'overflow-hidden' : 'overflow-y-scroll'}`}
       >
+        {/* ── SUBTLE GLOBAL BACKGROUND BLOBS (HARDWARE ACCELERATED) ── */}
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="absolute top-0 right-0 w-[30vw] h-[30vw] bg-[#D2042D]/5 rounded-full blur-[100px] transform-gpu will-change-transform" />
+          <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] bg-[#D2042D]/5 rounded-full blur-[120px] transform-gpu will-change-transform" />
+        </div>
+
         <div className="relative z-10 w-full h-full">
           {/* snap-always ensures you can't skip these sections with a single scroll wheel flick */}
           <section id="home" className="snap-start snap-always h-[100svh]">
