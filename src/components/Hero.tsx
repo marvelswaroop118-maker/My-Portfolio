@@ -87,7 +87,7 @@ export default function Hero() {
         <div className="absolute top-[30%] w-[50%] h-[50%] bg-[#D2042D]/20 rounded-full blur-[80px] lg:blur-[120px] -z-10 transform-gpu" />
 
         <Image
-          src="/Swaroop_Hero.PNG"
+          src="/Swaroop_Hero.png"
           alt="Swaroop Choudary"
           fill
           priority
